@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Leave a Review</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>R&M Plumbing and Heating</h1>
+      <p>Hi {{CUSTOMER_NAME}}! We'd love your feedback</p>
+    </div>
+    <div class="chat-messages" id="messages"></div>
+    <div class="chat-input-area">
+      <input type="text" id="input" placeholder="Type a message..." autocomplete="off">
+      <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+  <script>
+    const SESSION_ID = "{{SESSION_ID}}";
+  </script>
+  <script src="/static/chat.js"></script>
+</body>
+</html>

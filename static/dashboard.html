@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plumbly Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <h1>Plumbly Dashboard</h1>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats">
+      <div class="stat-card"><div class="number" id="stat-today">-</div><div class="label">Reviews Today</div></div>
+      <div class="stat-card"><div class="number" id="stat-total">-</div><div class="label">Total Sessions</div></div>
+      <div class="stat-card"><div class="number" id="stat-rate">-</div><div class="label">Completion Rate</div></div>
+    </div>
+
+    <!-- New Job -->
+    <div class="card">
+      <h2>Send Review Request</h2>
+      <form id="job-form">
+        <div class="form-group">
+          <label>Customer Name *</label>
+          <input type="text" id="customer_name" required>
+        </div>
+        <div class="form-group">
+          <label>Customer Phone</label>
+          <input type="text" id="customer_phone">
+        </div>
+        <div class="form-group">
+          <label>Customer Email</label>
+          <input type="email" id="customer_email">
+        </div>
+        <div class="form-group">
+          <label>Plumber Name</label>
+          <input type="text" id="plumber_name" value="Mike">
+        </div>
+        <div class="form-group">
+          <label>Job Description</label>
+          <input type="text" id="job_description" placeholder="e.g. Fixed kitchen sink leak">
+        </div>
+        <button type="submit" class="btn">Create Review Link</button>
+      </form>
+      <div id="link-result" class="review-link" style="display:none"></div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="card">
+      <h2>Active Sessions</h2>
+      <table class="sessions-table">
+        <thead>
+          <tr><th>Customer</th><th>Status</th><th>Device</th><th>Messages</th><th>Link</th></tr>
+        </thead>
+        <tbody id="sessions-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Event Log -->
+    <div class="card">
+      <h2>Event Pipeline (Redis Streams)</h2>
+      <div class="events-log" id="events-log"></div>
+    </div>
+  </div>
+
+  <script>
+    // Create job
+    document.getElementById("job-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = {
+        customer_name: document.getElementById("customer_name").value,
+        customer_phone: document.getElementById("customer_phone").value,
+        customer_email: document.getElementById("customer_email").value,
+        plumber_name: document.getElementById("plumber_name").value,
+        job_description: document.getElementById("job_description").value,
+      };
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const linkDiv = document.getElementById("link-result");
+        linkDiv.style.display = "block";
+        linkDiv.innerHTML = `Review link: <a href="${data.review_link}" target="_blank">${data.review_link}</a>`;
+        document.getElementById("job-form").reset();
+        loadSessions();
+      }
+    });
+
+    // Load sessions
+    async function loadSessions() {
+      const res = await fetch("/api/sessions");
+      const sessions = await res.json();
+      const tbody = document.getElementById("sessions-body");
+      tbody.innerHTML = sessions.map(s => `
+        <tr>
+          <td>${s.customer_name || "—"}</td>
+          <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+          <td>${s.device_type || "—"}</td>
+          <td>${s.message_count || 0}</td>
+          <td><a href="/review/${s.session_id}" target="_blank" class="btn btn-sm">Open</a></td>
+        </tr>
+      `).join("");
+    }
+
+    // Load analytics
+    async function loadAnalytics() {
+      const res = await fetch("/api/analytics");
+      const data = await res.json();
+      document.getElementById("stat-today").textContent = data.reviews_today;
+      document.getElementById("stat-total").textContent = data.total_sessions;
+      document.getElementById("stat-rate").textContent = data.completion_rate + "%";
+    }
+
+    // Load events
+    async function loadEvents() {
+      const res = await fetch("/api/events");
+      const events = await res.json();
+      const log = document.getElementById("events-log");
+      log.innerHTML = events.map(e => `
+        <div class="event-item">
+          <span class="event-type">${e.event}</span>
+          <span>${e.session_id || ""}</span>
+          <span class="event-time">${new Date(e.timestamp).toLocaleString()}</span>
+        </div>
+      `).join("");
+    }
+
+    // SSE — Real-time notifications via Redis Pub/Sub
+    function connectSSE() {
+      const source = new EventSource("/api/notifications");
+      source.addEventListener("notification", (e) => {
+        const data = JSON.parse(e.data);
+        showToast(`New review from ${data.customer_name}!`);
+        loadSessions();
+        loadAnalytics();
+        loadEvents();
+      });
+      source.onerror = () => {
+        setTimeout(connectSSE, 5000);
+        source.close();
+      };
+    }
+
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.className = "notification-toast";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    // Init
+    loadSessions();
+    loadAnalytics();
+    loadEvents();
+    connectSSE();
+    setInterval(() => { loadSessions(); loadAnalytics(); }, 30000);
+  </script>
+</body>
+</html>

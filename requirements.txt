@@ -1,0 +1,7 @@
+fastapi[standard]==0.115.12
+uvicorn[standard]==0.34.2
+redis[hiredis]==6.2.0
+google-genai==1.14.0
+pydantic-settings==2.8.1
+numpy==2.2.4
+sse-starlette==2.2.1
