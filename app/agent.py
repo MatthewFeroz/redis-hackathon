@@ -19,7 +19,7 @@ from app.redis_client import (
 )
 
 client = genai.Client(api_key=settings.gemini_api_key)
-MODEL = "gemini-3-flash-preview"
+MODEL = "gemini-2.5-flash"
 
 
 def build_system_prompt(session: dict) -> str:
@@ -150,6 +150,18 @@ async def chat(session_id: str, user_message: str, device_type: str = "unknown")
     )
 
     reply = response.text or "I'm sorry, I had trouble generating a response. Could you try again?"
+
+    # Ensure the review link is included in early replies when the customer
+    # is agreeing or asking how to leave a review (first few messages)
+    review_url = settings.google_review_url
+    if (
+        review_url
+        and review_url not in reply
+        and len(history) <= 4
+        and session.get("status") not in ("submitted", "declined")
+        and not any(review_url in m.get("content", "") for m in history)
+    ):
+        reply += f"\n\nHere's the link: {review_url}"
 
     # Store messages
     await add_message(session_id, "user", user_message)

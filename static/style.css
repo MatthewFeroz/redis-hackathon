@@ -81,6 +81,12 @@ body {
   border-bottom-left-radius: 4px;
 }
 
+.message.assistant a {
+  color: var(--blue);
+  text-decoration: underline;
+  word-break: break-all;
+}
+
 .message.user {
   background: var(--blue);
   color: white;
