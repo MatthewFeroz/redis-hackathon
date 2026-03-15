@@ -2,6 +2,7 @@
 FastAPI application entry point.
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -28,6 +29,12 @@ app = FastAPI(title="Plumbly", version="1.0.0", lifespan=lifespan)
 
 app.include_router(chat_router)
 app.include_router(plumber_router)
+
+# Mount SvelteKit build assets if available
+sveltekit_app_dir = os.path.join("dashboard-app", "build", "_app")
+if os.path.isdir(sveltekit_app_dir):
+    app.mount("/dashboard/_app", StaticFiles(directory=sveltekit_app_dir), name="sveltekit")
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 

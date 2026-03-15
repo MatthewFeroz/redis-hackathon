@@ -1,3 +1,12 @@
+# Stage 1: Build SvelteKit dashboard
+FROM node:20-slim AS frontend
+WORKDIR /frontend
+COPY dashboard-app/package*.json ./
+RUN npm ci
+COPY dashboard-app/ ./
+RUN npm run build
+
+# Stage 2: Python backend
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -7,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ app/
 COPY static/ static/
+
+# Copy SvelteKit build from stage 1
+COPY --from=frontend /frontend/build/ dashboard-app/build/
 
 EXPOSE 8080
 

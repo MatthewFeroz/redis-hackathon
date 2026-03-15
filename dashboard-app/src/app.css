@@ -1,0 +1,104 @@
+@import 'tailwindcss';
+
+@theme {
+	--font-display: 'Outfit', sans-serif;
+	--font-mono: 'DM Mono', monospace;
+	--color-surface-900: #0a0f1a;
+	--color-surface-800: #111827;
+	--color-surface-700: #1e293b;
+	--color-surface-600: #334155;
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: theme(--color-surface-600) transparent;
+}
+
+body {
+	font-family: var(--font-display);
+	background: var(--color-surface-900);
+	color: #e2e8f0;
+	min-height: 100vh;
+}
+
+/* Noise texture overlay */
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+	pointer-events: none;
+	z-index: 0;
+}
+
+/* Glow card effect */
+.card-glow {
+	position: relative;
+	background: var(--color-surface-800);
+	border: 1px solid var(--color-surface-600);
+	border-radius: 1rem;
+	overflow: hidden;
+}
+
+.card-glow::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	border-radius: 1rem;
+	padding: 1px;
+	background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 50%);
+	mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+	pointer-events: none;
+}
+
+/* Ensure all direct children of card-glow sit above the pseudo-element */
+.card-glow > * {
+	position: relative;
+	z-index: 1;
+}
+
+/* Slide-in animation */
+@keyframes slide-in-right {
+	from { transform: translateX(100%); }
+	to { transform: translateX(0); }
+}
+
+@keyframes slide-out-right {
+	from { transform: translateX(0); }
+	to { transform: translateX(100%); }
+}
+
+@keyframes fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+@keyframes toast-progress {
+	from { width: 100%; }
+	to { width: 0%; }
+}
+
+@keyframes pulse-glow {
+	0%, 100% { opacity: 0.4; }
+	50% { opacity: 1; }
+}
+
+@keyframes count-up {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in {
+	animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+	animation: fade-in 0.2s ease-out forwards;
+}

@@ -4,6 +4,7 @@ Plumber-facing routes: dashboard, job creation, analytics, SSE notifications.
 
 import asyncio
 import json
+import os
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -14,7 +15,11 @@ from app.redis_client import (
     create_session,
     get_all_sessions,
     get_analytics,
+    get_daily_counts,
     get_events,
+    get_funnel_counts,
+    get_history,
+    get_redis_stats,
     subscribe_notifications,
 )
 
@@ -23,6 +28,10 @@ router = APIRouter()
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page():
+    build_index = os.path.join("dashboard-app", "build", "index.html")
+    if os.path.exists(build_index):
+        with open(build_index) as f:
+            return HTMLResponse(f.read())
     with open("static/dashboard.html") as f:
         return HTMLResponse(f.read())
 
@@ -59,6 +68,34 @@ async def analytics():
 @router.get("/api/events")
 async def events(count: int = 50):
     return await get_events(count)
+
+
+@router.get("/api/sessions/{session_id}/history")
+async def session_history(session_id: str):
+    return await get_history(session_id)
+
+
+@router.get("/api/analytics/detailed")
+async def analytics_detailed():
+    base = await get_analytics()
+    funnel = await get_funnel_counts()
+    daily_reviews = await get_daily_counts("review_submitted", 7)
+    daily_started = await get_daily_counts("review_started", 7)
+    sessions = await get_all_sessions()
+    total_messages = sum(s.get("message_count", 0) for s in sessions)
+    avg_messages = round(total_messages / len(sessions), 1) if sessions else 0
+    return {
+        **base,
+        "funnel": funnel,
+        "daily_reviews": daily_reviews,
+        "daily_started": daily_started,
+        "avg_messages": avg_messages,
+    }
+
+
+@router.get("/api/redis-stats")
+async def redis_stats():
+    return await get_redis_stats()
 
 
 @router.get("/api/notifications")

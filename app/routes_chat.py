@@ -40,8 +40,13 @@ async def greeting(session_id: str, request: Request):
     client_ip = request.client.host if request.client else "unknown"
     if not await check_rate_limit(client_ip, "greeting"):
         raise HTTPException(status_code=429, detail="Too many requests")
-    text = await get_initial_greeting(session_id)
-    return {"reply": text, "session_id": session_id}
+    try:
+        text = await get_initial_greeting(session_id)
+        return {"reply": text, "session_id": session_id}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/api/chat", response_model=ChatResponse)

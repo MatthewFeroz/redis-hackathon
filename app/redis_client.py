@@ -331,3 +331,108 @@ async def check_rate_limit(ip: str, endpoint: str) -> bool:
     pipe.expire(key, settings.rate_limit_window)
     await pipe.execute()
     return True
+
+
+async def get_redis_stats() -> list[dict]:
+    """Return live stats for each Redis data structure used — interview showpiece."""
+    r = await get_redis()
+
+    # 1. JSON — Sessions
+    session_keys = [k async for k in r.scan_iter("session:*")]
+    # 2. Lists — Chat histories
+    chat_keys = [k async for k in r.scan_iter("chat:*")]
+    # 3. Streams — Event pipeline
+    try:
+        pipeline_len = await r.xlen("events:pipeline")
+    except Exception:
+        pipeline_len = 0
+    # 4. Pub/Sub — Notification channels
+    try:
+        channels = await r.pubsub_channels("plumber:*")
+        pubsub_count = len(channels)
+    except Exception:
+        pubsub_count = 0
+    # 5. Sorted Sets — Analytics
+    analytics_keys = [k async for k in r.scan_iter("analytics:*")]
+    # 6. Vector Sets — FAQ
+    try:
+        faq_count = await r.execute_command("VCARD", "faq:vectors")
+    except Exception:
+        try:
+            faq_count = await r.hlen("faq:fallback")
+        except Exception:
+            faq_count = 0
+    # 7. Key Expiry — Rate limiting
+    ratelimit_keys = [k async for k in r.scan_iter("ratelimit:*")]
+
+    return [
+        {
+            "name": "Sessions",
+            "type": "JSON",
+            "key_pattern": "session:{id}",
+            "count": len(session_keys),
+            "purpose": "Customer session state with TTL expiry",
+        },
+        {
+            "name": "Chat History",
+            "type": "List",
+            "key_pattern": "chat:{id}",
+            "count": len(chat_keys),
+            "purpose": "Ordered conversation messages (RPUSH/LRANGE)",
+        },
+        {
+            "name": "Event Pipeline",
+            "type": "Stream",
+            "key_pattern": "events:pipeline",
+            "count": pipeline_len,
+            "purpose": "Durable event log (XADD/XREVRANGE)",
+        },
+        {
+            "name": "Notifications",
+            "type": "Pub/Sub",
+            "key_pattern": "plumber:*",
+            "count": pubsub_count,
+            "purpose": "Real-time dashboard push via SSE",
+        },
+        {
+            "name": "Analytics",
+            "type": "Sorted Set",
+            "key_pattern": "analytics:{event}",
+            "count": len(analytics_keys),
+            "purpose": "Daily review counts (ZINCRBY/ZSCORE)",
+        },
+        {
+            "name": "FAQ Vectors",
+            "type": "Vector Set",
+            "key_pattern": "faq:vectors",
+            "count": faq_count,
+            "purpose": "Semantic FAQ search (VADD/VSIM)",
+        },
+        {
+            "name": "Rate Limits",
+            "type": "Key Expiry",
+            "key_pattern": "ratelimit:{ip}:{endpoint}",
+            "count": len(ratelimit_keys),
+            "purpose": "Spam prevention via SET NX EX",
+        },
+    ]
+
+
+async def get_funnel_counts() -> dict[str, int]:
+    """Count events by type from the pipeline stream for funnel visualization."""
+    r = await get_redis()
+    counts: dict[str, int] = {
+        "job_completed": 0,
+        "customer_contacted": 0,
+        "review_started": 0,
+        "review_submitted": 0,
+    }
+    try:
+        entries = await r.xrange("events:pipeline")
+        for _, fields in entries:
+            event = fields.get("event", "")
+            if event in counts:
+                counts[event] += 1
+    except Exception:
+        pass
+    return counts
