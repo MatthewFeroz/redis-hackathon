@@ -17,13 +17,23 @@ class JobCreate(BaseModel):
     customer_name: str
     customer_phone: str = ""
     customer_email: str = ""
+    customer_address: str = ""
+    customer_zip: str = ""
+    referral_source: str = ""
     job_description: str = ""
+    job_type: str = ""
+    job_total: str = ""
+    job_date: str = ""
     plumber_name: str = ""
+    is_repeat_customer: bool = False
+    follow_up_notes: str = ""
 
 
 class JobResponse(BaseModel):
     session_id: str
     review_link: str
+    sms_sent: bool = False
+    sms_error: str | None = None
 
 
 class SessionInfo(BaseModel):

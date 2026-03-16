@@ -42,8 +42,63 @@
           </select>
         </div>
         <div class="form-group">
+          <label>Job Type</label>
+          <select id="job_type">
+            <option value="">Select type...</option>
+            <option value="Drain Cleaning">Drain Cleaning</option>
+            <option value="Leak Repair">Leak Repair</option>
+            <option value="Water Heater">Water Heater</option>
+            <option value="Pipe Replacement">Pipe Replacement</option>
+            <option value="Faucet Install">Faucet Install</option>
+            <option value="Toilet Repair">Toilet Repair</option>
+            <option value="Sewer Line">Sewer Line</option>
+            <option value="Gas Line">Gas Line</option>
+            <option value="Garbage Disposal">Garbage Disposal</option>
+            <option value="Sump Pump">Sump Pump</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Job Description</label>
           <input type="text" id="job_description" placeholder="e.g. Fixed kitchen sink leak">
+        </div>
+        <div class="form-group">
+          <label>Customer Address</label>
+          <input type="text" id="customer_address" placeholder="123 Main St">
+        </div>
+        <div class="form-group">
+          <label>Zip Code</label>
+          <input type="text" id="customer_zip" placeholder="10001">
+        </div>
+        <div class="form-group">
+          <label>Referral Source</label>
+          <select id="referral_source">
+            <option value="">How did they find us?</option>
+            <option value="Google Search">Google Search</option>
+            <option value="Google Maps">Google Maps</option>
+            <option value="Referral">Referral</option>
+            <option value="Yelp">Yelp</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Nextdoor">Nextdoor</option>
+            <option value="Repeat Customer">Repeat Customer</option>
+            <option value="Yard Sign">Yard Sign</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Job Total</label>
+          <input type="text" id="job_total" placeholder="$250">
+        </div>
+        <div class="form-group">
+          <label>Job Date</label>
+          <input type="date" id="job_date">
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="is_repeat_customer"> Repeat Customer</label>
+        </div>
+        <div class="form-group">
+          <label>Follow-up Notes</label>
+          <input type="text" id="follow_up_notes" placeholder="Any notes...">
         </div>
         <button type="submit" class="btn">Create Review Link</button>
       </form>
@@ -76,8 +131,16 @@
         customer_name: document.getElementById("customer_name").value,
         customer_phone: document.getElementById("customer_phone").value,
         customer_email: document.getElementById("customer_email").value,
+        customer_address: document.getElementById("customer_address").value,
+        customer_zip: document.getElementById("customer_zip").value,
+        referral_source: document.getElementById("referral_source").value,
         plumber_name: document.getElementById("plumber_name").value,
         job_description: document.getElementById("job_description").value,
+        job_type: document.getElementById("job_type").value,
+        job_total: document.getElementById("job_total").value,
+        job_date: document.getElementById("job_date").value,
+        is_repeat_customer: document.getElementById("is_repeat_customer").checked,
+        follow_up_notes: document.getElementById("follow_up_notes").value,
       };
       const res = await fetch("/api/jobs", {
         method: "POST",

@@ -4,8 +4,9 @@ Customer-facing routes: chat page, API endpoints.
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
+from sse_starlette.sse import EventSourceResponse
 
-from app.agent import chat, get_initial_greeting
+from app.agent import chat, chat_stream, get_initial_greeting
 from app.models import ChatRequest, ChatResponse
 from app.redis_client import check_rate_limit, get_session
 
@@ -59,11 +60,30 @@ async def chat_endpoint(body: ChatRequest, request: Request):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    reply = await chat(body.session_id, body.message, body.device_type)
+    result = await chat(body.session_id, body.message, body.device_type)
 
     updated = await get_session(body.session_id)
     return ChatResponse(
-        reply=reply,
+        reply=result.reply,
         session_id=body.session_id,
         status=updated.get("status", "unknown") if updated else "unknown",
     )
+
+
+@router.post("/api/chat/stream")
+async def chat_stream_endpoint(body: ChatRequest, request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    if not await check_rate_limit(client_ip, "chat"):
+        raise HTTPException(status_code=429, detail="Too many requests")
+
+    session = await get_session(body.session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    async def event_generator():
+        async for event in chat_stream(body.session_id, body.message, body.device_type):
+            if await request.is_disconnected():
+                break
+            yield event
+
+    return EventSourceResponse(event_generator())

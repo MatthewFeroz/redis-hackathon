@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     session_ttl: int = 86400  # 24 hours
     rate_limit_window: int = 60
     rate_limit_max: int = 30
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_messaging_service_sid: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

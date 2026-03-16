@@ -3,8 +3,16 @@ export interface Session {
 	customer_name: string;
 	customer_phone: string;
 	customer_email: string;
+	customer_address: string;
+	customer_zip: string;
+	referral_source: string;
 	job_description: string;
+	job_type: string;
+	job_total: string;
+	job_date: string;
 	plumber_name: string;
+	is_repeat_customer: boolean;
+	follow_up_notes: string;
 	device_type: string;
 	status: string;
 	created_at: string;
@@ -51,11 +59,21 @@ export interface JobCreatePayload {
 	customer_name: string;
 	customer_phone: string;
 	customer_email: string;
+	customer_address: string;
+	customer_zip: string;
+	referral_source: string;
 	job_description: string;
+	job_type: string;
+	job_total: string;
+	job_date: string;
 	plumber_name: string;
+	is_repeat_customer: boolean;
+	follow_up_notes: string;
 }
 
 export interface JobResponse {
 	session_id: string;
 	review_link: string;
+	sms_sent: boolean;
+	sms_error: string | null;
 }

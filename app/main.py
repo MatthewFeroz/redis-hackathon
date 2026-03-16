@@ -33,7 +33,7 @@ app.include_router(plumber_router)
 # Mount SvelteKit build assets if available
 sveltekit_app_dir = os.path.join("dashboard-app", "build", "_app")
 if os.path.isdir(sveltekit_app_dir):
-    app.mount("/dashboard/_app", StaticFiles(directory=sveltekit_app_dir), name="sveltekit")
+    app.mount("/_app", StaticFiles(directory=sveltekit_app_dir), name="sveltekit")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

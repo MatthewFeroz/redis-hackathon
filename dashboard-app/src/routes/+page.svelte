@@ -53,8 +53,8 @@
 			</div>
 		</header>
 
-		<StatsBar />
 		<JobForm />
+		<StatsBar />
 		<SessionsTable />
 		<AnalyticsCharts />
 	</div>

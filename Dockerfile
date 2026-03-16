@@ -1,10 +1,10 @@
 # Stage 1: Build SvelteKit dashboard
-FROM node:20-slim AS frontend
+FROM oven/bun:1 AS frontend
 WORKDIR /frontend
-COPY dashboard-app/package*.json ./
-RUN npm ci
+COPY dashboard-app/package.json dashboard-app/bun.lock* ./
+RUN bun install --frozen-lockfile || bun install
 COPY dashboard-app/ ./
-RUN npm run build
+RUN bun run build
 
 # Stage 2: Python backend
 FROM python:3.12-slim

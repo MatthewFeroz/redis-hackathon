@@ -5,3 +5,4 @@ google-genai==1.14.0
 pydantic-settings==2.8.1
 numpy==2.2.4
 sse-starlette==2.2.1
+twilio==9.5.1

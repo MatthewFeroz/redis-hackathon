@@ -98,6 +98,7 @@
 			<thead>
 				<tr class="text-[10px] font-medium uppercase tracking-wider text-slate-500">
 					<th class="text-left px-5 py-3">Customer</th>
+					<th class="text-left px-3 py-3">Job</th>
 					<th class="text-left px-3 py-3">Plumber</th>
 					<th class="text-left px-3 py-3">Status</th>
 					<th class="text-center px-3 py-3">Messages</th>
@@ -114,7 +115,11 @@
 					>
 						<td class="px-5 py-3">
 							<span class="font-medium text-slate-200 group-hover:text-white transition-colors">{session.customer_name || '—'}</span>
+							{#if session.is_repeat_customer}
+								<span class="ml-1.5 text-[10px] text-amber-400/80 bg-amber-500/10 px-1.5 py-0.5 rounded-full">repeat</span>
+							{/if}
 						</td>
+						<td class="px-3 py-3 text-slate-400 text-xs">{session.job_type || '—'}</td>
 						<td class="px-3 py-3 text-slate-400 text-xs">{session.plumber_name || '—'}</td>
 						<td class="px-3 py-3">
 							<span class="{status.bg} {status.text} text-xs font-medium px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
@@ -132,7 +137,7 @@
 					</tr>
 				{:else}
 					<tr>
-						<td colspan="6" class="px-5 py-12 text-center text-slate-600 text-sm">
+						<td colspan="7" class="px-5 py-12 text-center text-slate-600 text-sm">
 							{store.sessionsLoading ? 'Loading...' : 'No customers yet'}
 						</td>
 					</tr>
@@ -150,13 +155,19 @@
 				class="w-full text-left p-4 hover:bg-surface-700/30 transition-colors cursor-pointer"
 			>
 				<div class="flex items-center justify-between mb-2">
-					<span class="font-medium text-slate-200">{session.customer_name || '—'}</span>
+					<div class="flex items-center gap-2">
+						<span class="font-medium text-slate-200">{session.customer_name || '—'}</span>
+						{#if session.is_repeat_customer}
+							<span class="text-[10px] text-amber-400/80 bg-amber-500/10 px-1.5 py-0.5 rounded-full">repeat</span>
+						{/if}
+					</div>
 					<span class="{status.bg} {status.text} text-[11px] font-medium px-2 py-0.5 rounded-full inline-flex items-center gap-1">
 						<span class="w-1.5 h-1.5 rounded-full {status.dot}"></span>
 						{status.label}
 					</span>
 				</div>
 				<div class="flex items-center gap-3 text-xs text-slate-500">
+					{#if session.job_type}<span>{session.job_type}</span><span>·</span>{/if}
 					<span>{session.plumber_name || '—'}</span>
 					<span>·</span>
 					<span>{session.message_count || 0} msgs</span>

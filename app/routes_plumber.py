@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 
 from app.models import AnalyticsResponse, JobCreate, JobResponse
+from app.sms import send_review_link
 from app.redis_client import (
     create_session,
     get_all_sessions,
@@ -26,7 +27,7 @@ from app.redis_client import (
 router = APIRouter()
 
 
-@router.get("/dashboard", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 async def dashboard_page():
     build_index = os.path.join("dashboard-app", "build", "index.html")
     if os.path.exists(build_index):
@@ -42,13 +43,33 @@ async def create_job(body: JobCreate, request: Request):
         customer_name=body.customer_name,
         customer_phone=body.customer_phone,
         customer_email=body.customer_email,
+        customer_address=body.customer_address,
+        customer_zip=body.customer_zip,
+        referral_source=body.referral_source,
         job_description=body.job_description,
+        job_type=body.job_type,
+        job_total=body.job_total,
+        job_date=body.job_date,
         plumber_name=body.plumber_name,
+        is_repeat_customer=body.is_repeat_customer,
+        follow_up_notes=body.follow_up_notes,
     )
     base_url = str(request.base_url).rstrip("/")
+    review_link = f"{base_url}/review/{session_id}"
+
+    # Send SMS if phone number provided
+    sms_result = await send_review_link(
+        to_phone=body.customer_phone,
+        customer_name=body.customer_name,
+        review_link=review_link,
+        plumber_name=body.plumber_name,
+    )
+
     return JobResponse(
         session_id=session_id,
-        review_link=f"{base_url}/review/{session_id}",
+        review_link=review_link,
+        sms_sent=sms_result.get("sent", False),
+        sms_error=sms_result.get("error"),
     )
 
 
