@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 
 from app.auth import AuthContext, require_role, require_session
+from app.config import settings
 from app.geocoding import geocode_location
 from app.models import AnalyticsResponse, CustomerMapPoint, JobCreate, JobResponse
 from app.sms import send_review_link
@@ -39,14 +40,365 @@ def _target_org(context: AuthContext, requested: str | None) -> str | None:
     return context.organization_id
 
 
-@router.get("/", response_class=HTMLResponse)
-async def dashboard_page():
+def _load_dashboard_html() -> HTMLResponse:
     build_index = os.path.join("dashboard-app", "build", "index.html")
     if os.path.exists(build_index):
         with open(build_index) as f:
             return HTMLResponse(f.read())
     with open("static/dashboard.html") as f:
         return HTMLResponse(f.read())
+
+
+@router.get("/", response_class=HTMLResponse)
+async def dashboard_page():
+    return _load_dashboard_html()
+
+
+@router.get("/sms-consent", response_class=HTMLResponse)
+async def sms_consent_page():
+    business_name = settings.business_name or "Alive Plumbing"
+    support_email = "alivecompanybusiness@gmail.com"
+    html = f"""
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{business_name} SMS Consent Disclosure</title>
+        <style>
+          :root {{
+            color-scheme: light;
+            --bg: #f6f7f9;
+            --panel: #ffffff;
+            --text: #101828;
+            --muted: #475467;
+            --border: #d0d5dd;
+            --accent: #1570ef;
+          }}
+          * {{ box-sizing: border-box; }}
+          body {{
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 40%);
+            color: var(--text);
+            line-height: 1.6;
+          }}
+          main {{
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 20px 72px;
+          }}
+          section {{
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 24px;
+            margin-top: 18px;
+            box-shadow: 0 8px 30px rgba(16, 24, 40, 0.05);
+          }}
+          h1, h2 {{ line-height: 1.2; }}
+          h1 {{ font-size: 2rem; margin: 0 0 12px; }}
+          h2 {{ font-size: 1.1rem; margin: 0 0 12px; }}
+          p, li {{ color: var(--muted); }}
+          code, pre {{
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          }}
+          pre {{
+            padding: 14px;
+            white-space: pre-wrap;
+          }}
+          .eyebrow {{
+            display: inline-block;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 10px;
+          }}
+          .grid {{
+            display: grid;
+            gap: 18px;
+          }}
+          @media (min-width: 768px) {{
+            .grid {{
+              grid-template-columns: 1fr 1fr;
+            }}
+          }}
+          a {{ color: var(--accent); }}
+        </style>
+      </head>
+      <body>
+        <main>
+          <span class="eyebrow">Public Compliance Page</span>
+          <h1>{business_name} SMS Consent Disclosure</h1>
+          <p>
+            This page documents the verbal opt-in workflow used before sending a single
+            customer-care review request text after a completed plumbing service visit.
+          </p>
+
+          <section>
+            <h2>Messaging Use Case</h2>
+            <p>
+              Customers receive one customer-care text message after a completed service
+              appointment. The message contains a personalized review link and does not
+              include promotional or marketing content.
+            </p>
+            <pre>Hi {{customer_name}}, thanks for choosing {business_name} today. Here is your review link: {{review_link}}. Reply STOP to opt out.</pre>
+          </section>
+
+          <section>
+            <h2>Verbal Consent Script</h2>
+            <p>Staff must read the following script before any text message is sent:</p>
+            <pre>"Would it be okay if we send you one text message with your review link for today's service? Message and data rates may apply. Reply STOP to opt out."</pre>
+            <p>
+              The customer must verbally answer "yes" before any text message is sent.
+              If the customer declines, no message is sent.
+            </p>
+          </section>
+
+          <section>
+            <h2>Simulated Verbal Opt-In Conversation</h2>
+            <pre>
+Technician: Would it be okay if we send you one text message with your review link for today's service? Message and data rates may apply. Reply STOP to opt out.
+
+Customer: Yes, that's fine.
+
+Technician: Great, we'll send one customer-care message to the phone number on this work order. You can reply STOP at any time to opt out.
+            </pre>
+          </section>
+
+          <section>
+            <h2>How Consent Is Recorded</h2>
+            <div class="grid">
+              <div>
+                <p>We record the following details when verbal consent is collected:</p>
+                <ul>
+                  <li>Customer full name</li>
+                  <li>Customer mobile number</li>
+                  <li>Date and time of consent</li>
+                  <li>Staff member / technician who collected consent</li>
+                  <li>Associated service job or work-order reference</li>
+                </ul>
+              </div>
+              <div>
+                <p>Internal controls:</p>
+                <ul>
+                  <li>Only one customer-care review request is sent per completed service visit</li>
+                  <li>No message is sent without a "yes" response</li>
+                  <li>Opt-out keywords are honored immediately</li>
+                  <li>Consent records are retained with the service record</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Opt-Out Instructions</h2>
+            <p>
+              Message recipients may opt out at any time by replying
+              <strong>STOP</strong>. We also honor <strong>CANCEL</strong>,
+              <strong>END</strong>, <strong>UNSUBSCRIBE</strong>, and
+              <strong>QUIT</strong>.
+            </p>
+          </section>
+
+          <section>
+            <h2>Support Contact</h2>
+            <p>
+              For messaging support questions, contact
+              <a href="mailto:{support_email}">{support_email}</a>.
+            </p>
+          </section>
+        </main>
+      </body>
+    </html>
+    """
+    return HTMLResponse(html)
+
+
+@router.get("/privacy", response_class=HTMLResponse)
+async def privacy_policy_page():
+    business_name = settings.business_name or "Alive Plumbing"
+    support_email = "alivecompanybusiness@gmail.com"
+    html = f"""
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{business_name} Privacy Policy</title>
+        <style>
+          body {{
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f7fb;
+            color: #101828;
+            line-height: 1.65;
+          }}
+          main {{
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 20px 72px;
+          }}
+          section {{
+            background: #fff;
+            border: 1px solid #d0d5dd;
+            border-radius: 18px;
+            padding: 24px;
+            margin-top: 18px;
+          }}
+          h1, h2 {{ line-height: 1.2; }}
+          h1 {{ margin-bottom: 12px; }}
+          p, li {{ color: #475467; }}
+          a {{ color: #1570ef; }}
+        </style>
+      </head>
+      <body>
+        <main>
+          <h1>{business_name} Privacy Policy</h1>
+          <p>
+            This Privacy Policy explains how {business_name} collects, uses, and protects
+            personal information provided through our website and customer communication tools.
+          </p>
+
+          <section>
+            <h2>Information We Collect</h2>
+            <ul>
+              <li>Name, phone number, email address, and service address</li>
+              <li>Work-order and service visit information</li>
+              <li>Consent records related to customer communications</li>
+              <li>Review interaction and support communication records</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>How We Use Information</h2>
+            <ul>
+              <li>Provide and manage plumbing services</li>
+              <li>Send customer-care messages related to completed services</li>
+              <li>Send review links after consent has been collected</li>
+              <li>Respond to support requests and maintain service records</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>SMS Messaging</h2>
+            <p>
+              SMS consent is not shared with third parties or affiliates for marketing purposes.
+              We only send customer-care messages after consent is collected.
+              Recipients may reply STOP to opt out or HELP for support.
+            </p>
+          </section>
+
+          <section>
+            <h2>Data Sharing</h2>
+            <p>
+              We may use service providers to help operate our business, including hosting,
+              analytics, messaging, and customer support tools. We do not sell personal
+              information.
+            </p>
+          </section>
+
+          <section>
+            <h2>Contact</h2>
+            <p>
+              For privacy questions, contact
+              <a href="mailto:{support_email}">{support_email}</a>.
+            </p>
+          </section>
+        </main>
+      </body>
+    </html>
+    """
+    return HTMLResponse(html)
+
+
+@router.get("/terms", response_class=HTMLResponse)
+async def terms_page():
+    business_name = settings.business_name or "Alive Plumbing"
+    support_email = "alivecompanybusiness@gmail.com"
+    html = f"""
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{business_name} Terms & Conditions</title>
+        <style>
+          body {{
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f7fb;
+            color: #101828;
+            line-height: 1.65;
+          }}
+          main {{
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 48px 20px 72px;
+          }}
+          section {{
+            background: #fff;
+            border: 1px solid #d0d5dd;
+            border-radius: 18px;
+            padding: 24px;
+            margin-top: 18px;
+          }}
+          h1, h2 {{ line-height: 1.2; }}
+          h1 {{ margin-bottom: 12px; }}
+          p, li {{ color: #475467; }}
+          a {{ color: #1570ef; }}
+        </style>
+      </head>
+      <body>
+        <main>
+          <h1>{business_name} Terms & Conditions</h1>
+          <p>
+            These Terms & Conditions govern the use of our website, customer communication
+            tools, and SMS messaging related to completed plumbing services.
+          </p>
+
+          <section>
+            <h2>SMS Program Description</h2>
+            <p>
+              Customers may receive one customer-care SMS after a completed service visit
+              containing a personalized review link. Message frequency varies by service
+              activity but is limited to customer-care use only for this workflow.
+            </p>
+          </section>
+
+          <section>
+            <h2>Consent and Opt-Out</h2>
+            <p>
+              Customers must provide consent before receiving SMS messages. Message and data
+              rates may apply. Reply STOP to opt out at any time. Reply HELP for support.
+            </p>
+          </section>
+
+          <section>
+            <h2>Support</h2>
+            <p>
+              For support regarding this messaging program, contact
+              <a href="mailto:{support_email}">{support_email}</a>.
+            </p>
+          </section>
+
+          <section>
+            <h2>General Terms</h2>
+            <p>
+              We may update these terms from time to time. Continued use of our services
+              constitutes acceptance of the updated terms.
+            </p>
+          </section>
+        </main>
+      </body>
+    </html>
+    """
+    return HTMLResponse(html)
 
 
 @router.post("/api/jobs", response_model=JobResponse)
@@ -259,3 +611,17 @@ async def notifications(
             await pubsub.aclose()
 
     return EventSourceResponse(event_stream())
+
+
+@router.get("/{frontend_path:path}", response_class=HTMLResponse)
+async def frontend_route(frontend_path: str):
+    if (
+        frontend_path.startswith("api/")
+        or frontend_path.startswith("auth/")
+        or frontend_path.startswith("review/")
+        or frontend_path.startswith("_app/")
+        or frontend_path.startswith("static/")
+        or frontend_path == "health"
+    ):
+        raise HTTPException(status_code=404, detail="Not Found")
+    return _load_dashboard_html()
