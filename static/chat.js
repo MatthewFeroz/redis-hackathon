@@ -88,33 +88,63 @@ async function sendMessage() {
     const decoder = new TextDecoder();
     let buffer = "";
     let fullText = "";
-    let currentEvent = "message";
+
+    function processEventBlock(block) {
+      const normalized = block.replace(/\r/g, "");
+      const lines = normalized.split("\n");
+      let eventName = "message";
+      const dataLines = [];
+
+      for (const line of lines) {
+        if (line.startsWith("event:")) {
+          eventName = line.slice(6).trim();
+        } else if (line.startsWith("data:")) {
+          dataLines.push(line.slice(5).trimStart());
+        }
+      }
+
+      if (!dataLines.length) return;
+
+      const raw = dataLines.join("\n");
+
+      if (eventName === "chunk") {
+        try {
+          const { text: chunkText } = JSON.parse(raw);
+          fullText += chunkText;
+          msgDiv.innerHTML = linkify(fullText);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        } catch {}
+      } else if (eventName === "done") {
+        try {
+          const { full_reply: finalReply } = JSON.parse(raw);
+          if (finalReply) {
+            fullText = finalReply;
+            msgDiv.innerHTML = linkify(fullText);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          }
+        } catch {}
+      } else if (eventName === "error") {
+        msgDiv.textContent = "Something went wrong. Please try again.";
+      }
+    }
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop();
+      const events = buffer.replace(/\r\n/g, "\n").split("\n\n");
+      buffer = events.pop() || "";
 
-      for (const line of lines) {
-        if (line.startsWith("event: ")) {
-          currentEvent = line.slice(7).trim();
-        } else if (line.startsWith("data: ")) {
-          const raw = line.slice(6);
-          if (currentEvent === "chunk") {
-            try {
-              const { text: chunkText } = JSON.parse(raw);
-              fullText += chunkText;
-              msgDiv.innerHTML = linkify(fullText);
-              messagesEl.scrollTop = messagesEl.scrollHeight;
-            } catch {}
-          } else if (currentEvent === "error") {
-            msgDiv.textContent = "Something went wrong. Please try again.";
-          }
-        }
+      for (const eventBlock of events) {
+        processEventBlock(eventBlock);
       }
+    }
+
+    buffer += decoder.decode();
+    const finalEvents = buffer.replace(/\r\n/g, "\n").split("\n\n").filter(Boolean);
+    for (const eventBlock of finalEvents) {
+      processEventBlock(eventBlock);
     }
 
     // If nothing was streamed, show fallback

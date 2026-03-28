@@ -1,9 +1,19 @@
-import type { Session, DetailedAnalytics, ChatMessage } from './types';
+import type {
+	Session,
+	DetailedAnalytics,
+	ChatMessage,
+	MeResponse,
+	PipelineEvent,
+	RedisStatCard
+} from './types';
 import { api } from './api';
 
 let sessions = $state<Session[]>([]);
 let sessionsLoading = $state(false);
 let analytics = $state<DetailedAnalytics | null>(null);
+let me = $state<MeResponse | null>(null);
+let events = $state<PipelineEvent[]>([]);
+let redisStats = $state<RedisStatCard[]>([]);
 let selectedSessionId = $state<string | null>(null);
 let chatHistory = $state<ChatMessage[]>([]);
 let chatLoading = $state(false);
@@ -27,6 +37,10 @@ export function getStore() {
 		get filteredSessions() { return filteredSessions; },
 		get sessionsLoading() { return sessionsLoading; },
 		get analytics() { return analytics; },
+		get me() { return me; },
+		set me(value: MeResponse | null) { me = value; },
+		get events() { return events; },
+		get redisStats() { return redisStats; },
 		get selectedSessionId() { return selectedSessionId; },
 		set selectedSessionId(v: string | null) { selectedSessionId = v; },
 		get chatHistory() { return chatHistory; },
@@ -48,6 +62,14 @@ export function getStore() {
 
 		async loadAnalytics() {
 			analytics = await api.getDetailedAnalytics();
+		},
+
+		async loadEvents() {
+			events = await api.getEvents();
+		},
+
+		async loadRedisStats() {
+			redisStats = await api.getRedisStats();
 		},
 
 		async openConversation(sessionId: string) {
@@ -76,7 +98,9 @@ export function getStore() {
 		async refreshAll() {
 			await Promise.all([
 				this.loadSessions(),
-				this.loadAnalytics()
+				this.loadAnalytics(),
+				this.loadEvents(),
+				this.loadRedisStats()
 			]);
 		}
 	};

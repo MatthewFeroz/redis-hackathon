@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "redis": {
+      "command": "/Users/ahmadulaferoz/.local/bin/redis-mcp-server",
+      "args": ["--url", "redis://localhost:6379/0"]
+    }
+  }
+}

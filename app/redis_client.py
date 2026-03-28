@@ -45,6 +45,7 @@ async def close_redis():
 # ---------------------------------------------------------------------------
 
 async def create_session(
+    organization_id: str | None,
     customer_name: str,
     customer_phone: str = "",
     customer_email: str = "",
@@ -58,11 +59,14 @@ async def create_session(
     plumber_name: str = "",
     is_repeat_customer: bool = False,
     follow_up_notes: str = "",
+    created_by_user_id: str | None = None,
 ) -> str:
     r = await get_redis()
     session_id = str(uuid.uuid4())[:8]
     session_data = {
         "session_id": session_id,
+        "organization_id": organization_id,
+        "created_by_user_id": created_by_user_id,
         "customer_name": customer_name,
         "customer_phone": customer_phone,
         "customer_email": customer_email,
@@ -88,10 +92,15 @@ async def create_session(
     await r.json().set(f"session:{session_id}", "$", session_data)
     await r.expire(f"session:{session_id}", settings.session_ttl)
 
-    await emit_event(session_id, "job_completed", {
-        "customer_name": customer_name,
-        "plumber_name": plumber_name,
-    })
+    await emit_event(
+        session_id,
+        "job_completed",
+        {
+            "customer_name": customer_name,
+            "plumber_name": plumber_name,
+        },
+        organization_id=organization_id,
+    )
     return session_id
 
 
@@ -107,7 +116,7 @@ async def update_session(session_id: str, **fields):
         await r.json().set(f"session:{session_id}", f"$.{key}", value)
 
 
-async def get_all_sessions() -> list[dict]:
+async def get_all_sessions(organization_id: str | None = None) -> list[dict]:
     r = await get_redis()
     keys = []
     async for key in r.scan_iter("session:*"):
@@ -115,7 +124,9 @@ async def get_all_sessions() -> list[dict]:
     sessions = []
     for key in keys:
         data = await r.json().get(key)
-        if data:
+        if data and (
+            organization_id is None or data.get("organization_id") == organization_id
+        ):
             sessions.append(data)
     return sessions
 
@@ -142,10 +153,19 @@ async def get_history(session_id: str) -> list[dict]:
 # 3. Streams — Event Pipeline
 # ---------------------------------------------------------------------------
 
-async def emit_event(session_id: str, event_type: str, data: dict | None = None):
+async def emit_event(
+    session_id: str,
+    event_type: str,
+    data: dict | None = None,
+    organization_id: str | None = None,
+):
     r = await get_redis()
+    if organization_id is None:
+        session = await get_session(session_id)
+        organization_id = session.get("organization_id") if session else None
     entry = {
         "session_id": session_id,
+        "organization_id": organization_id or "",
         "event": event_type,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "data": json.dumps(data or {}),
@@ -153,11 +173,13 @@ async def emit_event(session_id: str, event_type: str, data: dict | None = None)
     await r.xadd("events:pipeline", entry)
 
 
-async def get_events(count: int = 50) -> list[dict]:
+async def get_events(count: int = 50, organization_id: str | None = None) -> list[dict]:
     r = await get_redis()
     entries = await r.xrevrange("events:pipeline", count=count)
     results = []
     for entry_id, fields in entries:
+        if organization_id is not None and fields.get("organization_id") != organization_id:
+            continue
         fields["id"] = entry_id
         if "data" in fields:
             fields["data"] = json.loads(fields["data"])
@@ -185,34 +207,58 @@ async def subscribe_notifications(channel: str = "plumber:notifications"):
 # 5. Sorted Sets — Analytics
 # ---------------------------------------------------------------------------
 
-async def track_review_event(event_type: str):
+async def track_review_event(event_type: str, organization_id: str | None = None):
     r = await get_redis()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    await r.zincrby(f"analytics:{event_type}", 1, today)
+    key = f"analytics:{event_type}:{organization_id}" if organization_id else f"analytics:{event_type}"
+    await r.zincrby(key, 1, today)
 
 
-async def get_daily_counts(event_type: str, days: int = 7) -> dict[str, int]:
+async def get_daily_counts(
+    event_type: str,
+    days: int = 7,
+    organization_id: str | None = None,
+) -> dict[str, int]:
     r = await get_redis()
     results = {}
     now = datetime.now(timezone.utc)
+    keys = (
+        [f"analytics:{event_type}:{organization_id}"]
+        if organization_id
+        else [k async for k in r.scan_iter(f"analytics:{event_type}*")]
+    )
+    if not keys:
+        keys = [f"analytics:{event_type}"]
     for i in range(days):
         from datetime import timedelta
         day = (now - timedelta(days=i)).strftime("%Y-%m-%d")
-        score = await r.zscore(f"analytics:{event_type}", day)
-        results[day] = int(score) if score else 0
+        total = 0
+        for key in keys:
+            score = await r.zscore(key, day)
+            total += int(score) if score else 0
+        results[day] = total
     return results
 
 
-async def get_analytics() -> dict:
+async def get_analytics(organization_id: str | None = None) -> dict:
     r = await get_redis()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    reviews_today_score = await r.zscore("analytics:review_submitted", today)
-    reviews_today = int(reviews_today_score) if reviews_today_score else 0
+    reviews_today = 0
+    keys = (
+        [f"analytics:review_submitted:{organization_id}"]
+        if organization_id
+        else [k async for k in r.scan_iter("analytics:review_submitted*")]
+    )
+    if not keys:
+        keys = ["analytics:review_submitted"]
+    for key in keys:
+        reviews_today_score = await r.zscore(key, today)
+        reviews_today += int(reviews_today_score) if reviews_today_score else 0
 
-    reviews_week = await get_daily_counts("review_submitted", 7)
+    reviews_week = await get_daily_counts("review_submitted", 7, organization_id=organization_id)
 
-    sessions = await get_all_sessions()
+    sessions = await get_all_sessions(organization_id=organization_id)
     total = len(sessions)
     completed = sum(1 for s in sessions if s.get("status") == "submitted")
     rate = (completed / total * 100) if total > 0 else 0.0
@@ -353,14 +399,16 @@ async def check_rate_limit(ip: str, endpoint: str) -> bool:
     return True
 
 
-async def get_redis_stats() -> list[dict]:
+async def get_redis_stats(organization_id: str | None = None) -> list[dict]:
     """Return live stats for each Redis data structure used — interview showpiece."""
     r = await get_redis()
 
     # 1. JSON — Sessions
-    session_keys = [k async for k in r.scan_iter("session:*")]
+    sessions = await get_all_sessions(organization_id=organization_id)
+    session_ids = {session["session_id"] for session in sessions}
+    session_keys = [f"session:{session_id}" for session_id in session_ids]
     # 2. Lists — Chat histories
-    chat_keys = [k async for k in r.scan_iter("chat:*")]
+    chat_keys = [f"chat:{session_id}" for session_id in session_ids]
     # 3. Streams — Event pipeline
     try:
         pipeline_len = await r.xlen("events:pipeline")
@@ -373,7 +421,11 @@ async def get_redis_stats() -> list[dict]:
     except Exception:
         pubsub_count = 0
     # 5. Sorted Sets — Analytics
-    analytics_keys = [k async for k in r.scan_iter("analytics:*")]
+    analytics_keys = (
+        [k async for k in r.scan_iter(f"analytics:*:{organization_id}")]
+        if organization_id
+        else [k async for k in r.scan_iter("analytics:*")]
+    )
     # 6. Vector Sets — FAQ
     try:
         faq_count = await r.execute_command("VCARD", "faq:vectors")
@@ -438,7 +490,7 @@ async def get_redis_stats() -> list[dict]:
     ]
 
 
-async def get_funnel_counts() -> dict[str, int]:
+async def get_funnel_counts(organization_id: str | None = None) -> dict[str, int]:
     """Count events by type from the pipeline stream for funnel visualization."""
     r = await get_redis()
     counts: dict[str, int] = {
@@ -450,6 +502,8 @@ async def get_funnel_counts() -> dict[str, int]:
     try:
         entries = await r.xrange("events:pipeline")
         for _, fields in entries:
+            if organization_id is not None and fields.get("organization_id") != organization_id:
+                continue
             event = fields.get("event", "")
             if event in counts:
                 counts[event] += 1

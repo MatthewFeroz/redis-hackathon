@@ -38,6 +38,7 @@ class JobResponse(BaseModel):
 
 class SessionInfo(BaseModel):
     session_id: str
+    organization_id: str | None = None
     customer_name: str
     status: str
     device_type: str
@@ -54,6 +55,7 @@ class AnalyticsResponse(BaseModel):
 
 class CustomerMapPoint(BaseModel):
     session_id: str
+    organization_id: str | None = None
     customer_name: str
     customer_address: str = ""
     customer_zip: str = ""
@@ -61,3 +63,26 @@ class CustomerMapPoint(BaseModel):
     latitude: float
     longitude: float
     geocode_source: str = ""
+
+
+class OrganizationSummary(BaseModel):
+    id: str
+    name: str
+    slug: str
+    role: str
+
+
+class MeResponse(BaseModel):
+    user_id: str
+    email: str
+    first_name: str | None = None
+    last_name: str | None = None
+    role: str
+    platform_role: str | None = None
+    is_superadmin: bool = False
+    organization: OrganizationSummary | None = None
+    organizations: list[OrganizationSummary] = []
+
+
+class OrganizationSwitchRequest(BaseModel):
+    organization_id: str

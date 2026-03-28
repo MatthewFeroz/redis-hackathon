@@ -15,8 +15,28 @@ class Settings(BaseSettings):
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_messaging_service_sid: str = ""
+    workos_api_key: str = ""
+    workos_client_id: str = ""
+    workos_redirect_uri: str = "http://localhost:8080/auth/callback"
+    workos_cookie_password: str = ""
+    app_base_url: str = "http://localhost:5173"
+    auth_session_cookie_name: str = "plumbly_session"
+    auth_session_ttl: int = 604800
+    auth_state_ttl: int = 600
+    cookie_domain: str = ""
+    cookie_secure: bool = False
+    cookie_samesite: str = "lax"
+    superadmin_emails: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+
+    @property
+    def superadmin_email_set(self) -> set[str]:
+        return {
+            email.strip().lower()
+            for email in self.superadmin_emails.split(",")
+            if email.strip()
+        }
 
 
 settings = Settings()

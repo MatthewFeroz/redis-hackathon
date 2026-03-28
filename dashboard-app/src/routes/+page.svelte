@@ -183,7 +183,7 @@
 
 <main class="relative overflow-hidden">
 	<!-- =========== HERO =========== -->
-	<section class="relative min-h-[100dvh] flex items-center pt-20">
+	<section class="relative flex items-center pt-20 pb-16 sm:pb-20">
 		<!-- Background Effects -->
 		<div class="hero-bg">
 			<div class="hero-gradient"></div>
@@ -246,54 +246,13 @@
 					class:opacity-100={heroVisible}
 					class:translate-y-0={heroVisible}
 				>
-					<div class="flex items-center gap-3">
-						<p class="text-sm text-slate-500">Built for</p>
-						<div style="position: relative; height: 2rem; min-width: 10rem; overflow: hidden;">
-							{#each industries as ind, i}
-								<div
-									style="position: absolute; top: 0; left: 0; display: flex; align-items: center; gap: 0.5rem; height: 2rem; white-space: nowrap; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); opacity: {i === currentIndustry ? 1 : 0}; transform: translateY({i === currentIndustry ? '0%' : '100%'}); pointer-events: {i === currentIndustry ? 'auto' : 'none'};"
-								>
-									<span class="text-lg">{ind.icon}</span>
-									<span class="text-sm font-semibold text-emerald-300">{ind.label}</span>
-								</div>
-							{/each}
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
 	</section>
 
-	<!-- =========== SOCIAL PROOF STRIP =========== -->
-	<section
-		class="relative py-16 sm:py-20 border-y border-white/[0.04]"
-		data-animate="stats"
-	>
-		<div class="max-w-7xl mx-auto px-5 sm:px-8">
-			<div
-				class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 transition-all duration-700"
-				class:opacity-0={!statsVisible}
-				class:translate-y-8={!statsVisible}
-				class:opacity-100={statsVisible}
-				class:translate-y-0={statsVisible}
-			>
-				{#each [
-					{ value: '50K+', label: 'Reviews generated' },
-					{ value: '2,400+', label: 'Active businesses' },
-					{ value: '4.8', label: 'Avg review rating' },
-					{ value: '89%', label: 'Completion rate' },
-				] as stat, i}
-					<div class="text-center" style="transition-delay: {i * 100}ms">
-						<p class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">{stat.value}</p>
-						<p class="text-sm text-slate-500 mt-1">{stat.label}</p>
-					</div>
-				{/each}
-			</div>
-		</div>
-	</section>
-
 	<!-- =========== FEATURES =========== -->
-	<section id="features" class="relative py-24 sm:py-32" data-animate="features">
+	<section id="features" class="relative py-16 sm:py-20" data-animate="features">
 		<div class="max-w-7xl mx-auto px-5 sm:px-8">
 			<div
 				class="text-center max-w-2xl mx-auto mb-16 sm:mb-20 transition-all duration-700"
@@ -524,7 +483,7 @@
 		<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"></div>
 
 		<div class="max-w-7xl mx-auto px-5 sm:px-8">
-			<div class="relative card-glow p-10 sm:p-16 text-center overflow-hidden">
+			<div class="relative card-glow px-8 py-10 sm:px-12 sm:py-12 text-center overflow-hidden">
 				<!-- Background glow -->
 				<div class="absolute inset-0 bg-gradient-to-b from-emerald-500/[0.08] via-transparent to-transparent pointer-events-none"></div>
 				<div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-40 bg-emerald-500/20 blur-[100px] rounded-full pointer-events-none"></div>

@@ -137,8 +137,15 @@ async def _prepare_chat(
 
     if session.get("status") == "created":
         await update_session(session_id, status="contacted")
-        await emit_event(session_id, "customer_contacted")
-        await track_review_event("sessions_started")
+        await emit_event(
+            session_id,
+            "customer_contacted",
+            organization_id=session.get("organization_id"),
+        )
+        await track_review_event(
+            "sessions_started",
+            organization_id=session.get("organization_id"),
+        )
 
     with timer.step("search_faq"):
         faq_matches = await search_faq(user_message)
@@ -152,18 +159,31 @@ async def _prepare_chat(
         detected = detect_status(user_message)
         if detected == "submitted":
             await update_session(session_id, status="submitted")
-            await emit_event(session_id, "review_submitted", {
-                "customer_name": session.get("customer_name", ""),
-            })
-            await track_review_event("review_submitted")
+            await emit_event(
+                session_id,
+                "review_submitted",
+                {
+                    "customer_name": session.get("customer_name", ""),
+                },
+                organization_id=session.get("organization_id"),
+            )
+            await track_review_event(
+                "review_submitted",
+                organization_id=session.get("organization_id"),
+            )
             await publish_notification("plumber:notifications", {
                 "type": "review_submitted",
                 "customer_name": session.get("customer_name", ""),
                 "session_id": session_id,
+                "organization_id": session.get("organization_id"),
             })
         elif detected == "declined":
             await update_session(session_id, status="declined")
-            await emit_event(session_id, "review_declined")
+            await emit_event(
+                session_id,
+                "review_declined",
+                organization_id=session.get("organization_id"),
+            )
         elif detected == "needs_help" and session.get("status") != "submitted":
             await update_session(session_id, status="needs_help")
 
@@ -317,7 +337,14 @@ async def get_initial_greeting(session_id: str) -> str:
 
     await add_message(session_id, "assistant", greeting)
     await update_session(session_id, status="contacted")
-    await emit_event(session_id, "customer_contacted")
-    await track_review_event("sessions_started")
+    await emit_event(
+        session_id,
+        "customer_contacted",
+        organization_id=session.get("organization_id"),
+    )
+    await track_review_event(
+        "sessions_started",
+        organization_id=session.get("organization_id"),
+    )
 
     return greeting

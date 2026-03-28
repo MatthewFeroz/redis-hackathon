@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.redis_client import close_redis, get_redis, seed_faq_vectors
+from app.routes_auth import router as auth_router
 from app.routes_chat import router as chat_router
 from app.routes_plumber import router as plumber_router
 
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Plumbly", version="1.0.0", lifespan=lifespan)
 
+app.include_router(auth_router)
 app.include_router(chat_router)
 app.include_router(plumber_router)
 

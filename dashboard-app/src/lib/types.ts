@@ -1,5 +1,6 @@
 export interface Session {
 	session_id: string;
+	organization_id?: string | null;
 	customer_name: string;
 	customer_phone: string;
 	customer_email: string;
@@ -80,6 +81,7 @@ export interface JobResponse {
 
 export interface CustomerMapPoint {
 	session_id: string;
+	organization_id?: string | null;
 	customer_name: string;
 	customer_address: string;
 	customer_zip: string;
@@ -87,4 +89,23 @@ export interface CustomerMapPoint {
 	latitude: number;
 	longitude: number;
 	geocode_source: string;
+}
+
+export interface OrganizationSummary {
+	id: string;
+	name: string;
+	slug: string;
+	role: string;
+}
+
+export interface MeResponse {
+	user_id: string;
+	email: string;
+	first_name?: string | null;
+	last_name?: string | null;
+	role: string;
+	platform_role?: string | null;
+	is_superadmin: boolean;
+	organization?: OrganizationSummary | null;
+	organizations: OrganizationSummary[];
 }
