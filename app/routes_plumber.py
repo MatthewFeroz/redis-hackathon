@@ -10,7 +10,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 
-from app.models import AnalyticsResponse, JobCreate, JobResponse
+from app.geocoding import geocode_location
+from app.models import AnalyticsResponse, CustomerMapPoint, JobCreate, JobResponse
 from app.sms import send_review_link
 from app.redis_client import (
     create_session,
@@ -22,6 +23,7 @@ from app.redis_client import (
     get_history,
     get_redis_stats,
     subscribe_notifications,
+    update_session,
 )
 
 router = APIRouter()
@@ -78,6 +80,59 @@ async def list_sessions():
     sessions = await get_all_sessions()
     sessions.sort(key=lambda s: s.get("created_at", ""), reverse=True)
     return sessions
+
+
+@router.get("/api/customers/map", response_model=list[CustomerMapPoint])
+async def customer_map_points():
+    sessions = await get_all_sessions()
+    points: list[CustomerMapPoint] = []
+
+    async def resolve_session(session: dict) -> CustomerMapPoint | None:
+        latitude = session.get("latitude")
+        longitude = session.get("longitude")
+        geocode_source = session.get("geocode_source", "")
+
+        if latitude is None or longitude is None:
+            geocoded = await geocode_location(
+                session.get("customer_address", ""),
+                session.get("customer_zip", ""),
+            )
+            if geocoded and "latitude" in geocoded and "longitude" in geocoded:
+                latitude = geocoded["latitude"]
+                longitude = geocoded["longitude"]
+                geocode_source = geocoded.get("geocode_source", "")
+                await update_session(
+                    session["session_id"],
+                    latitude=latitude,
+                    longitude=longitude,
+                    geocode_source=geocode_source,
+                    geocode_error="",
+                )
+            elif geocoded and geocoded.get("geocode_error"):
+                await update_session(
+                    session["session_id"],
+                    geocode_error=geocoded["geocode_error"],
+                )
+                return None
+            else:
+                return None
+
+        return CustomerMapPoint(
+            session_id=session["session_id"],
+            customer_name=session.get("customer_name", ""),
+            customer_address=session.get("customer_address", ""),
+            customer_zip=session.get("customer_zip", ""),
+            status=session.get("status", "created"),
+            latitude=latitude,
+            longitude=longitude,
+            geocode_source=geocode_source,
+        )
+
+    resolved = await asyncio.gather(*(resolve_session(session) for session in sessions))
+    for point in resolved:
+        if point is not None:
+            points.append(point)
+    return points
 
 
 @router.get("/api/analytics", response_model=AnalyticsResponse)

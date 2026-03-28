@@ -6,7 +6,8 @@ import type {
 	RedisStatCard,
 	PipelineEvent,
 	JobCreatePayload,
-	JobResponse
+	JobResponse,
+	CustomerMapPoint
 } from './types';
 
 const BASE = '';
@@ -33,6 +34,7 @@ export const api = {
 	getDetailedAnalytics: () => get<DetailedAnalytics>('/api/analytics/detailed'),
 	getEvents: (count = 50) => get<PipelineEvent[]>(`/api/events?count=${count}`),
 	getRedisStats: () => get<RedisStatCard[]>('/api/redis-stats'),
+	getCustomerMapPoints: () => get<CustomerMapPoint[]>('/api/customers/map'),
 	getSessionHistory: (id: string) => get<ChatMessage[]>(`/api/sessions/${id}/history`),
 	createJob: (payload: JobCreatePayload) => post<JobResponse>('/api/jobs', payload)
 };

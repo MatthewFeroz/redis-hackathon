@@ -102,3 +102,48 @@ body::before {
 .animate-fade-in {
 	animation: fade-in 0.2s ease-out forwards;
 }
+
+/* Auth shared input styles */
+.auth-input {
+	width: 100%;
+	padding: 0.75rem 0.875rem;
+	background: rgba(255,255,255,0.03);
+	border: 1px solid rgba(255,255,255,0.08);
+	border-radius: 0.75rem;
+	color: white;
+	font-size: 0.875rem;
+	font-family: var(--font-display);
+	outline: none;
+	transition: all 0.2s;
+}
+
+.auth-input::placeholder {
+	color: rgb(100, 116, 139);
+}
+
+.auth-input:focus {
+	border-color: rgba(16, 185, 129, 0.4);
+	box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.auth-oauth-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	background: rgba(255,255,255,0.03);
+	border: 1px solid rgba(255,255,255,0.08);
+	border-radius: 0.75rem;
+	color: rgb(203, 213, 225);
+	font-size: 0.875rem;
+	font-family: var(--font-display);
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.auth-oauth-btn:hover {
+	background: rgba(255,255,255,0.06);
+	border-color: rgba(255,255,255,0.12);
+}

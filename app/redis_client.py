@@ -80,6 +80,10 @@ async def create_session(
         "status": "created",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "message_count": 0,
+        "latitude": None,
+        "longitude": None,
+        "geocode_source": "",
+        "geocode_error": "",
     }
     await r.json().set(f"session:{session_id}", "$", session_data)
     await r.expire(f"session:{session_id}", settings.session_ttl)

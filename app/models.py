@@ -50,3 +50,14 @@ class AnalyticsResponse(BaseModel):
     reviews_this_week: dict[str, int]
     total_sessions: int
     completion_rate: float
+
+
+class CustomerMapPoint(BaseModel):
+    session_id: str
+    customer_name: str
+    customer_address: str = ""
+    customer_zip: str = ""
+    status: str
+    latitude: float
+    longitude: float
+    geocode_source: str = ""

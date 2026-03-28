@@ -77,3 +77,14 @@ export interface JobResponse {
 	sms_sent: boolean;
 	sms_error: string | null;
 }
+
+export interface CustomerMapPoint {
+	session_id: string;
+	customer_name: string;
+	customer_address: string;
+	customer_zip: string;
+	status: string;
+	latitude: number;
+	longitude: number;
+	geocode_source: string;
+}

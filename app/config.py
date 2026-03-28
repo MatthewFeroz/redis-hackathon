@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     business_name: str = "R&M Plumbing and Heating"
     google_review_url: str = ""
     google_cloud_project: str = ""
+    geocoding_user_agent: str = "plumbly-dev/1.0"
+    geocoding_timeout_seconds: int = 5
     session_ttl: int = 86400  # 24 hours
     rate_limit_window: int = 60
     rate_limit_max: int = 30
