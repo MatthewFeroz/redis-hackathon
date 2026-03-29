@@ -5,9 +5,10 @@ Plumber-facing routes: dashboard, job creation, analytics, SSE notifications.
 import asyncio
 import json
 import os
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 
 from app.auth import AuthContext, require_role, require_session
@@ -30,6 +31,7 @@ from app.redis_client import (
 )
 
 router = APIRouter()
+BUILD_DIR = Path("dashboard-app") / "build"
 
 
 def _target_org(context: AuthContext, requested: str | None) -> str | None:
@@ -615,6 +617,14 @@ async def notifications(
 
 @router.get("/{frontend_path:path}", response_class=HTMLResponse)
 async def frontend_route(frontend_path: str):
+    candidate = (BUILD_DIR / frontend_path).resolve()
+    build_root = BUILD_DIR.resolve()
+
+    # Serve built frontend assets like /favicon.svg and /brand-star.svg
+    # before falling back to the SPA shell.
+    if build_root in candidate.parents and candidate.is_file():
+        return FileResponse(candidate)
+
     if (
         frontend_path.startswith("api/")
         or frontend_path.startswith("auth/")
