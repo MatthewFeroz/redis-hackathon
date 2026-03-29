@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Navbar from '../components/landing/Navbar.svelte';
+	import BrandLogo from '../components/branding/BrandLogo.svelte';
 
 	let heroVisible = $state(false);
 	let statsVisible = $state(false);
@@ -238,6 +239,23 @@
 					<span class="text-sm text-slate-500">No credit card required &middot; 14-day free trial</span>
 				</div>
 
+				<div
+					class="mt-8 inline-flex items-center gap-3 rounded-full border border-[#f0c86a]/20 bg-[#f0c86a]/8 px-4 py-2 text-sm text-[#f7df9a] shadow-[0_0_30px_rgba(240,200,106,0.08)] transition-all duration-700 delay-[350ms]"
+					class:opacity-0={!heroVisible}
+					class:translate-y-6={!heroVisible}
+					class:opacity-100={heroVisible}
+					class:translate-y-0={heroVisible}
+				>
+					<div class="flex items-center gap-1">
+						{#each Array(5) as _}
+							<svg class="w-4 h-4 gold-review-star" viewBox="0 0 20 20" aria-hidden="true">
+								<path d="M10 1.8 12.45 6.77 17.94 7.57 13.97 11.44 14.9 16.91 10 14.33 5.1 16.91 6.03 11.44 2.06 7.57 7.55 6.77 10 1.8Z" />
+							</svg>
+						{/each}
+					</div>
+					<span>Branded around your gold-star review experience</span>
+				</div>
+
 				<!-- Industry Carousel -->
 				<div
 					class="mt-16 sm:mt-20 transition-all duration-700 delay-[400ms]"
@@ -391,7 +409,7 @@
 						<!-- Stars -->
 						<div class="flex gap-0.5 mb-5">
 							{#each Array(t.rating) as _}
-								<svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+								<svg class="w-4 h-4 gold-review-star" viewBox="0 0 20 20" aria-hidden="true">
 									<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
 								</svg>
 							{/each}
@@ -528,12 +546,7 @@
 				<!-- Brand -->
 				<div class="sm:col-span-2 lg:col-span-1">
 					<div class="flex items-center gap-2.5 mb-4">
-						<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
-							<svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-								<path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-							</svg>
-						</div>
-						<span class="text-base font-bold text-white">Plumbly</span>
+						<BrandLogo markClass="w-9 h-9" textClass="text-base" />
 					</div>
 					<p class="text-sm text-slate-500 leading-relaxed max-w-xs">
 						AI-powered review generation for service businesses. Turn every happy customer into a 5-star advocate.
@@ -660,6 +673,13 @@
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
+	}
+
+	.gold-review-star {
+		fill: #f2cb67;
+		stroke: #fff2bd;
+		stroke-width: 0.55;
+		filter: drop-shadow(0 0 6px rgba(242, 203, 103, 0.28));
 	}
 
 </style>

@@ -26,7 +26,7 @@ Plumbly is an AI chat agent that guides customers step-by-step through leaving a
 | Backend | Python + FastAPI |
 | Session State | Redis |
 | Frontend | Web chat interface |
-| Hosting | Google Cloud Run |
+| Hosting | Railway |
 | Containerization | Docker |
 
 ## Architecture
@@ -72,17 +72,30 @@ redis-server
 uvicorn app.main:app --reload
 ```
 
-### Deploy to Google Cloud Run
+### Deploy to Railway
 
 ```bash
-chmod +x deploy.sh
-./deploy.sh
+# Push your changes to GitHub, then connect the repo to Railway.
+# Railway should use the repo root and build from the root Dockerfile.
 ```
+
+Required Railway environment variables:
+
+- `GEMINI_API_KEY`
+- `REDIS_URL`
+- `GOOGLE_REVIEW_URL`
+- `BUSINESS_NAME`
+
+Recommended Railway service settings:
+
+- Root directory: `/`
+- Builder: `Dockerfile`
+- Auto-deploy: enabled for your main branch
 
 ## Built For
 
 - **Gemini Live Agent Challenge Hackathon** — #GeminiLiveAgentChallenge
-- Demonstrates real-world application of Google Gemini multimodal AI with Google Cloud infrastructure
+- Demonstrates real-world application of Google Gemini multimodal AI with Railway deployment
 
 ## License
 

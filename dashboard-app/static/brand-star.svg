@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="brandStarTitle brandStarDesc">
+  <title id="brandStarTitle">Plumbly gold star logo</title>
+  <desc id="brandStarDesc">A layered gold star emblem with a smaller star nested inside.</desc>
+  <defs>
+    <linearGradient id="goldFill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff4bd"/>
+      <stop offset="20%" stop-color="#f6dc86"/>
+      <stop offset="45%" stop-color="#d3a84e"/>
+      <stop offset="62%" stop-color="#fff0ab"/>
+      <stop offset="82%" stop-color="#b5842f"/>
+      <stop offset="100%" stop-color="#f3d576"/>
+    </linearGradient>
+    <linearGradient id="goldEdge" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#fff8d8"/>
+      <stop offset="40%" stop-color="#f7d878"/>
+      <stop offset="100%" stop-color="#9b6a20"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#f4c75b" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <g filter="url(#softGlow)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <path
+      d="M256 36 316 159 452 179 352 273 376 412 256 349 136 412 160 273 60 179 196 159 256 36Z"
+      stroke="url(#goldEdge)"
+      stroke-width="34"
+    />
+    <path
+      d="M256 132 297 216 390 228 321 292 337 386 256 344 175 386 191 292 122 228 215 216 256 132Z"
+      stroke="url(#goldFill)"
+      stroke-width="26"
+    />
+  </g>
+</svg>
