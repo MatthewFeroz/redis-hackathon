@@ -12,6 +12,7 @@ from app.redis_client import close_redis, get_redis, seed_faq_vectors
 from app.routes_auth import router as auth_router
 from app.routes_chat import router as chat_router
 from app.routes_plumber import router as plumber_router
+from app.routes_sms import router as sms_router
 
 
 @asynccontextmanager
@@ -38,6 +39,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(auth_router)
 app.include_router(chat_router)
 app.include_router(plumber_router)
+app.include_router(sms_router)
 
 
 @app.get("/health")

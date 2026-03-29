@@ -5,6 +5,7 @@ Plumber-facing routes: dashboard, job creation, analytics, SSE notifications.
 import asyncio
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -18,6 +19,7 @@ from app.models import AnalyticsResponse, CustomerMapPoint, JobCreate, JobRespon
 from app.sms import send_review_link
 from app.redis_client import (
     create_session,
+    emit_event,
     get_all_sessions,
     get_analytics,
     get_daily_counts,
@@ -26,9 +28,11 @@ from app.redis_client import (
     get_history,
     get_redis_stats,
     get_session,
+    is_sms_opted_out,
     subscribe_notifications,
     update_session,
 )
+from app.phone_utils import normalize_phone_number
 
 router = APIRouter()
 BUILD_DIR = Path("dashboard-app") / "build"
@@ -431,13 +435,47 @@ async def create_job(
     base_url = str(request.base_url).rstrip("/")
     review_link = f"{base_url}/review/{session_id}"
 
-    # Send SMS if phone number provided
-    sms_result = await send_review_link(
-        to_phone=body.customer_phone,
-        customer_name=body.customer_name,
-        review_link=review_link,
-        plumber_name=body.plumber_name,
-    )
+    normalized_phone = normalize_phone_number(body.customer_phone)
+
+    if normalized_phone and await is_sms_opted_out(normalized_phone):
+        sms_result = {
+            "sent": False,
+            "error": "Recipient has opted out of SMS",
+            "normalized_phone": normalized_phone,
+        }
+        await update_session(
+            session_id,
+            sms_opt_out=True,
+            sms_delivery_status="blocked",
+            sms_error=sms_result["error"],
+            sms_status_updated_at=datetime.now(timezone.utc).isoformat(),
+        )
+        await emit_event(
+            session_id,
+            "sms_blocked_opt_out",
+            {"phone": normalized_phone},
+            organization_id=context.organization_id,
+        )
+    else:
+        sms_result = await send_review_link(
+            to_phone=body.customer_phone,
+            customer_name=body.customer_name,
+            review_link=review_link,
+            plumber_name=body.plumber_name,
+        )
+        await update_session(
+            session_id,
+            customer_phone_normalized=sms_result.get("normalized_phone", normalized_phone),
+            sms_message_sid=sms_result.get("sid", ""),
+            sms_delivery_status=(
+                sms_result.get("status")
+                if sms_result.get("sent")
+                else ("failed" if body.customer_phone else "not_sent")
+            ),
+            sms_error=sms_result.get("error", ""),
+            sms_error_code="",
+            sms_status_updated_at=datetime.now(timezone.utc).isoformat(),
+        )
 
     return JobResponse(
         session_id=session_id,

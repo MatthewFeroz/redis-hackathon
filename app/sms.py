@@ -5,10 +5,15 @@ Twilio SMS integration — sends review links to customers.
 from twilio.rest import Client
 
 from app.config import settings
+from app.phone_utils import normalize_phone_number
 
 
 def _get_client() -> Client | None:
-    if not settings.twilio_account_sid or not settings.twilio_auth_token:
+    if (
+        not settings.twilio_account_sid
+        or not settings.twilio_auth_token
+        or not settings.twilio_messaging_service_sid
+    ):
         return None
     return Client(settings.twilio_account_sid, settings.twilio_auth_token)
 
@@ -27,15 +32,7 @@ async def send_review_link(
     if not to_phone:
         return {"sent": False, "error": "No phone number provided"}
 
-    # Normalize phone: add +1 if it looks like a US number without country code
-    phone = to_phone.strip().replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
-    if not phone.startswith("+"):
-        if phone.startswith("1") and len(phone) == 11:
-            phone = f"+{phone}"
-        elif len(phone) == 10:
-            phone = f"+1{phone}"
-        else:
-            phone = f"+{phone}"
+    phone = normalize_phone_number(to_phone)
 
     plumber_line = f" {plumber_name} at" if plumber_name else ""
     body = (
@@ -51,6 +48,11 @@ async def send_review_link(
             messaging_service_sid=settings.twilio_messaging_service_sid,
             body=body,
         )
-        return {"sent": True, "sid": message.sid}
+        return {
+            "sent": True,
+            "sid": message.sid,
+            "status": getattr(message, "status", "") or "queued",
+            "normalized_phone": phone,
+        }
     except Exception as e:
-        return {"sent": False, "error": str(e)}
+        return {"sent": False, "error": str(e), "normalized_phone": phone}

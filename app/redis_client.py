@@ -20,6 +20,7 @@ import numpy as np
 import redis.asyncio as redis
 
 from app.config import settings
+from app.phone_utils import normalize_phone_number
 
 pool: redis.Redis | None = None
 
@@ -27,6 +28,10 @@ pool: redis.Redis | None = None
 def generate_session_id() -> str:
     """Return a long opaque token suitable for customer-facing review links."""
     return secrets.token_urlsafe(24)
+
+
+def _utcnow_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
 async def get_redis() -> redis.Redis:
@@ -74,6 +79,7 @@ async def create_session(
         "created_by_user_id": created_by_user_id,
         "customer_name": customer_name,
         "customer_phone": customer_phone,
+        "customer_phone_normalized": normalize_phone_number(customer_phone),
         "customer_email": customer_email,
         "customer_address": customer_address,
         "customer_zip": customer_zip,
@@ -93,6 +99,12 @@ async def create_session(
         "longitude": None,
         "geocode_source": "",
         "geocode_error": "",
+        "sms_opt_out": False,
+        "sms_message_sid": "",
+        "sms_delivery_status": "not_sent",
+        "sms_error": "",
+        "sms_error_code": "",
+        "sms_status_updated_at": "",
     }
     await r.json().set(f"session:{session_id}", "$", session_data)
     await r.expire(f"session:{session_id}", settings.session_ttl)
@@ -134,6 +146,65 @@ async def get_all_sessions(organization_id: str | None = None) -> list[dict]:
         ):
             sessions.append(data)
     return sessions
+
+
+async def get_sessions_by_phone(phone: str) -> list[dict]:
+    normalized = normalize_phone_number(phone)
+    if not normalized:
+        return []
+
+    sessions = await get_all_sessions()
+    return [
+        session
+        for session in sessions
+        if normalize_phone_number(session.get("customer_phone_normalized") or session.get("customer_phone", "")) == normalized
+    ]
+
+
+async def is_sms_opted_out(phone: str) -> bool:
+    normalized = normalize_phone_number(phone)
+    if not normalized:
+        return False
+
+    r = await get_redis()
+    data = await r.json().get(f"sms_suppression:{normalized}")
+    return bool(data and data.get("opted_out"))
+
+
+async def set_sms_opt_out(
+    phone: str,
+    *,
+    opted_out: bool,
+    source: str,
+    message_sid: str = "",
+    body: str = "",
+) -> dict | None:
+    normalized = normalize_phone_number(phone)
+    if not normalized:
+        return None
+
+    payload = {
+        "phone": normalized,
+        "opted_out": opted_out,
+        "source": source,
+        "message_sid": message_sid,
+        "body": body,
+        "updated_at": _utcnow_iso(),
+    }
+    r = await get_redis()
+    await r.json().set(f"sms_suppression:{normalized}", "$", payload)
+    return payload
+
+
+async def find_session_by_sms_sid(message_sid: str) -> dict | None:
+    if not message_sid:
+        return None
+
+    sessions = await get_all_sessions()
+    for session in sessions:
+        if session.get("sms_message_sid") == message_sid:
+            return session
+    return None
 
 
 # ---------------------------------------------------------------------------
