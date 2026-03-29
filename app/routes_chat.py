@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 
 from app.agent import chat, chat_stream, get_initial_greeting
-from app.models import ChatRequest, ChatResponse
+from app.models import ChatRequest, ChatResponse, PublicSessionInfo
 from app.redis_client import check_rate_limit, get_session
 
 router = APIRouter()
@@ -28,12 +28,17 @@ async def review_page(session_id: str, request: Request):
     return HTMLResponse(html)
 
 
-@router.get("/api/session/{session_id}")
+@router.get("/api/session/{session_id}", response_model=PublicSessionInfo)
 async def get_session_info(session_id: str):
     session = await get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    return session
+    return PublicSessionInfo(
+        session_id=session["session_id"],
+        customer_name=session.get("customer_name", ""),
+        status=session.get("status", "unknown"),
+        device_type=session.get("device_type", "unknown"),
+    )
 
 
 @router.get("/api/greeting/{session_id}")

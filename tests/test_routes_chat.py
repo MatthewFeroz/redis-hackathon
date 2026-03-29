@@ -67,6 +67,32 @@ async def test_post_chat_returns_json(app, mock_agent_and_redis):
 
 
 @pytest.mark.asyncio
+async def test_get_session_info_returns_public_safe_fields(app, mock_agent_and_redis):
+    mock_agent_and_redis["get_session"].return_value = {
+        "session_id": "test1234",
+        "customer_name": "John",
+        "status": "contacted",
+        "device_type": "iphone",
+        "customer_phone": "+15551234567",
+        "customer_email": "john@example.com",
+        "customer_address": "123 Main St",
+        "organization_id": "org_123",
+        "created_by_user_id": "user_123",
+    }
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        resp = await ac.get("/api/session/test1234")
+
+    assert resp.status_code == 200
+    assert resp.json() == {
+        "session_id": "test1234",
+        "customer_name": "John",
+        "status": "contacted",
+        "device_type": "iphone",
+    }
+
+
+@pytest.mark.asyncio
 async def test_post_chat_stream_returns_sse(app, mock_agent_and_redis):
     async def fake_stream(sid, msg, device_type="unknown"):
         yield {"event": "chunk", "data": json.dumps({"text": "Hello "})}

@@ -46,6 +46,13 @@ class SessionInfo(BaseModel):
     message_count: int
 
 
+class PublicSessionInfo(BaseModel):
+    session_id: str
+    customer_name: str
+    status: str
+    device_type: str
+
+
 class AnalyticsResponse(BaseModel):
     reviews_today: int
     reviews_this_week: dict[str, int]
