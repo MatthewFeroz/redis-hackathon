@@ -12,8 +12,8 @@ Uses 7 distinct Redis data structures / features:
 """
 
 import json
+import secrets
 import time
-import uuid
 from datetime import datetime, timezone
 
 import numpy as np
@@ -22,6 +22,11 @@ import redis.asyncio as redis
 from app.config import settings
 
 pool: redis.Redis | None = None
+
+
+def generate_session_id() -> str:
+    """Return a long opaque token suitable for customer-facing review links."""
+    return secrets.token_urlsafe(24)
 
 
 async def get_redis() -> redis.Redis:
@@ -62,7 +67,7 @@ async def create_session(
     created_by_user_id: str | None = None,
 ) -> str:
     r = await get_redis()
-    session_id = str(uuid.uuid4())[:8]
+    session_id = generate_session_id()
     session_data = {
         "session_id": session_id,
         "organization_id": organization_id,
