@@ -1,6 +1,8 @@
 # Plumbly
 
-AI-powered review assistant that walks customers through leaving a Google review after a plumbing service call.
+## About
+
+AI-guided Google reviews for home service businesses: customers get a chat link that walks them through leaving a review; operators run jobs and track progress on a dashboard. **Stack:** FastAPI, Redis, Google Gemini, and SvelteKit.
 
 ## Quick orientation
 
