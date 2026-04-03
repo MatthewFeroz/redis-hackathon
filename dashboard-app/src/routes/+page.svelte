@@ -182,7 +182,7 @@
 
 <Navbar />
 
-<main class="relative overflow-hidden">
+<main class="relative overflow-x-hidden">
 	<!-- =========== HERO =========== -->
 	<section class="relative flex items-center pt-20 pb-16 sm:pb-20">
 		<!-- Background Effects -->
@@ -432,22 +432,32 @@
 				</p>
 			</div>
 
-			<div class="grid md:grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto">
+			<div class="grid md:grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto items-stretch">
 				{#each plans as plan, i}
 					<div
-						class="relative rounded-2xl transition-all duration-700 {plan.popular ? 'ring-2 ring-emerald-500/50' : ''}"
+						class="relative flex flex-col transition-all duration-700"
 						style="transition-delay: {i * 100}ms"
 						class:opacity-0={!pricingVisible}
 						class:translate-y-8={!pricingVisible}
 						class:opacity-100={pricingVisible}
 						class:translate-y-0={pricingVisible}
 					>
-						{#if plan.popular}
-							<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-500 rounded-full text-[11px] font-bold text-white uppercase tracking-wider">
-								Most popular
-							</div>
-						{/if}
-						<div class="card-glow p-6 sm:p-8 h-full flex flex-col {plan.popular ? 'border-emerald-500/30' : ''}">
+						<!-- Flow layout + negative margin: label stays in flow (no clip) but sits on the card edge -->
+						<div
+							class="flex justify-center min-h-[2.25rem] shrink-0 items-end pb-1 relative z-10"
+							aria-hidden={!plan.popular}
+						>
+							{#if plan.popular}
+								<span class="inline-flex px-3.5 py-1 bg-emerald-500 rounded-full text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap shadow-md shadow-emerald-950/30">
+									Most popular
+								</span>
+							{/if}
+						</div>
+						<div
+							class="card-glow p-6 sm:p-8 flex-1 min-h-0 flex flex-col rounded-2xl {plan.popular
+								? 'ring-2 ring-emerald-500/50 border-emerald-500/30'
+								: ''}"
+						>
 							<div class="mb-6">
 								<h3 class="text-lg font-bold text-white">{plan.name}</h3>
 								<p class="text-sm text-slate-400 mt-1">{plan.description}</p>
