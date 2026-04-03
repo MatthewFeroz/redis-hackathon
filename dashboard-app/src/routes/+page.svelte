@@ -66,38 +66,38 @@
 
 	const features = [
 		{
-			title: 'AI Conversations',
-			description: 'Our AI agent chats naturally with your customers, guiding them through the review process without friction or awkwardness.',
+			title: 'Automatic Follow-Up',
+			description: 'After every job, we text your customer a friendly message that walks them through leaving a Google review. No awkward asking on your part.',
 			icon: 'chat',
 			accent: 'emerald'
 		},
 		{
-			title: 'Smart Timing',
-			description: 'Automatically reach out at the perfect moment — right after service completion when satisfaction is highest.',
+			title: 'Perfect Timing',
+			description: 'Customers get the review request right after you finish the job, when they\'re happiest and most likely to leave a great review.',
 			icon: 'clock',
 			accent: 'blue'
 		},
 		{
-			title: 'Real-time Dashboard',
-			description: 'Track every review in your pipeline. See who\'s engaged, who\'s submitted, and where to follow up.',
+			title: 'See Everything at a Glance',
+			description: 'See every review request at a glance. Who\'s responded, who hasn\'t, and who left a review. All in one simple dashboard.',
 			icon: 'chart',
 			accent: 'amber'
 		},
 		{
-			title: 'SMS & Link Delivery',
-			description: 'Send personalized review links via SMS or email. Customers tap once and the AI handles the rest.',
+			title: 'Text Message Delivery',
+			description: 'Customers get a personalized text with a review link. They tap it and we walk them through the rest. Easy as that.',
 			icon: 'send',
 			accent: 'violet'
 		},
 		{
-			title: 'Sentiment Analysis',
-			description: 'Catch unhappy customers before they post negative reviews. Route concerns to your team instantly.',
+			title: 'Catch Bad Reviews Early',
+			description: 'If a customer had a bad experience, you\'ll get a heads-up before they leave a negative review so you can make it right.',
 			icon: 'shield',
 			accent: 'rose'
 		},
 		{
-			title: 'Google Integration',
-			description: 'Direct connection to Google Business Profile. Reviews land exactly where they matter most for your SEO.',
+			title: 'Straight to Google',
+			description: 'Reviews go straight to your Google Business page, right where new customers are looking for you.',
 			icon: 'globe',
 			accent: 'cyan'
 		},
@@ -106,23 +106,23 @@
 	const steps = [
 		{
 			number: '01',
-			title: 'Complete a job',
-			description: 'Log the customer info in Plumbly after finishing a service call, appointment, or visit.'
+			title: 'Finish a job',
+			description: 'After you finish a job, punch in the customer\'s name and phone number. Takes about 30 seconds.'
 		},
 		{
 			number: '02',
-			title: 'Customer gets a link',
-			description: 'An SMS or email is automatically sent with a personalized link to your AI review assistant.'
+			title: 'Customer gets a text',
+			description: 'We automatically send them a friendly text message with a link to leave you a Google review.'
 		},
 		{
 			number: '03',
-			title: 'AI guides the review',
-			description: 'Our AI agent has a friendly conversation, making it effortless for customers to leave a detailed, genuine review.'
+			title: 'We walk them through it',
+			description: 'Our assistant has a quick, friendly chat that makes it easy for your customer to write a real, detailed review.'
 		},
 		{
 			number: '04',
 			title: 'Review goes live',
-			description: 'The review is posted directly to Google. You see it instantly in your dashboard with full analytics.'
+			description: 'The review shows up on your Google Business page. You\'ll see it in your dashboard right away.'
 		}
 	];
 
@@ -130,24 +130,24 @@
 		{
 			name: 'Starter',
 			price: '29',
-			description: 'For solo operators just getting started with review generation.',
-			features: ['50 review requests/mo', 'AI review assistant', 'SMS delivery', 'Basic dashboard', 'Google integration'],
+			description: 'For one-person shops that want more Google reviews.',
+			features: ['50 review requests/mo', 'Automatic follow-ups', 'Text message delivery', 'Simple dashboard', 'Posts to Google'],
 			cta: 'Start free trial',
 			popular: false
 		},
 		{
 			name: 'Pro',
 			price: '79',
-			description: 'For growing businesses that want to dominate local search.',
-			features: ['Unlimited review requests', 'AI review assistant', 'SMS + Email delivery', 'Advanced analytics', 'Sentiment filtering', 'Priority support', 'Custom branding'],
+			description: 'For busy shops that want a steady stream of new Google reviews.',
+			features: ['Unlimited review requests', 'Automatic follow-ups', 'Text + Email delivery', 'Detailed reporting', 'Bad review alerts', 'Priority support', 'Your own branding'],
 			cta: 'Start free trial',
 			popular: true
 		},
 		{
 			name: 'Agency',
 			price: '199',
-			description: 'For agencies managing reviews across multiple locations.',
-			features: ['Everything in Pro', 'Up to 10 locations', 'White-label dashboard', 'API access', 'Team management', 'Dedicated account manager', 'Custom integrations'],
+			description: 'For companies managing reviews across multiple locations.',
+			features: ['Everything in Pro', 'Up to 10 locations', 'Your own branded dashboard', 'Connect to other software', 'Team management', 'Dedicated account manager', 'Custom setup help'],
 			cta: 'Contact sales',
 			popular: false
 		}
@@ -176,8 +176,8 @@
 </script>
 
 <svelte:head>
-	<title>Plumbly — AI-Powered Review Generation for Service Businesses</title>
-	<meta name="description" content="Turn every happy customer into a 5-star Google review. Plumbly's AI assistant makes review generation effortless for plumbers, restaurants, HVAC, salons, and more." />
+	<title>Plumbly - Get More 5-Star Google Reviews for Your Business</title>
+	<meta name="description" content="Turn every happy customer into a 5-star Google review. Plumbly texts your customers after every job and walks them through leaving a review so you don't have to ask." />
 </svelte:head>
 
 <Navbar />
@@ -189,8 +189,6 @@
 		<div class="hero-bg">
 			<div class="hero-gradient"></div>
 			<div class="hero-grid"></div>
-			<div class="hero-orb hero-orb--1"></div>
-			<div class="hero-orb hero-orb--2"></div>
 		</div>
 
 		<div class="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24 relative z-10 w-full">
@@ -215,7 +213,7 @@
 					class:opacity-100={heroVisible}
 					class:translate-y-0={heroVisible}
 				>
-					Plumbly's AI assistant chats with your customers after every job, guiding them to leave genuine Google reviews — no awkward asks, no forgotten follow-ups.
+					After every job, Plumbly texts your customer and walks them through leaving a Google review. No awkward asking, no forgetting to follow up.
 				</p>
 
 				<!-- CTA Row -->
@@ -253,18 +251,9 @@
 							</svg>
 						{/each}
 					</div>
-					<span>Branded around your gold-star review experience</span>
+					<span>Get more 5-star Google reviews on autopilot</span>
 				</div>
 
-				<!-- Industry Carousel -->
-				<div
-					class="mt-16 sm:mt-20 transition-all duration-700 delay-[400ms]"
-					class:opacity-0={!heroVisible}
-					class:translate-y-6={!heroVisible}
-					class:opacity-100={heroVisible}
-					class:translate-y-0={heroVisible}
-				>
-				</div>
 			</div>
 		</div>
 	</section>
@@ -282,10 +271,10 @@
 				<p class="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-4">Features</p>
 				<h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
 					Everything you need to<br />
-					<span class="hero-gradient-text">own your reputation</span>
+					<span class="hero-gradient-text">grow your reviews</span>
 				</h2>
 				<p class="mt-5 text-lg text-slate-400">
-					From the first SMS to a live Google review — Plumbly handles the entire journey automatically.
+					From the first text message to a live Google review, Plumbly handles it all automatically.
 				</p>
 			</div>
 
@@ -358,8 +347,8 @@
 			>
 				<p class="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-4">How it works</p>
 				<h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-					Four steps to<br />
-					<span class="hero-gradient-text">review autopilot</span>
+					Four simple steps to<br />
+					<span class="hero-gradient-text">reviews on autopilot</span>
 				</h2>
 			</div>
 
@@ -375,13 +364,10 @@
 					>
 						<!-- Connector line (not on last) -->
 						{#if i < steps.length - 1}
-							<div class="hidden lg:block absolute top-8 left-[calc(100%+0.25rem)] w-[calc(100%-2rem)] h-px bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
+							<div class="hidden lg:block absolute top-10 left-[calc(100%+0.25rem)] w-[calc(100%-2rem)] h-px bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
 						{/if}
 						<div class="relative p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-emerald-500/20 transition-colors duration-300">
 							<span class="text-5xl font-black text-white/[0.04] absolute top-3 right-4 select-none">{step.number}</span>
-							<div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-5">
-								<span class="text-sm font-bold text-emerald-400">{step.number}</span>
-							</div>
 							<h3 class="text-base font-bold text-white mb-2">{step.title}</h3>
 							<p class="text-sm text-slate-400 leading-relaxed">{step.description}</p>
 						</div>
@@ -511,7 +497,7 @@
 						Start collecting reviews today
 					</h2>
 					<p class="text-lg text-slate-400 max-w-xl mx-auto mb-10">
-						Join thousands of service businesses using Plumbly to build their reputation on autopilot. Set up takes less than 5 minutes.
+						Join thousands of service businesses getting more Google reviews with Plumbly. Set up takes less than 5 minutes.
 					</p>
 					<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
 						<a
@@ -549,7 +535,7 @@
 						<BrandLogo markClass="w-9 h-9" textClass="text-base" />
 					</div>
 					<p class="text-sm text-slate-500 leading-relaxed max-w-xs">
-						AI-powered review generation for service businesses. Turn every happy customer into a 5-star advocate.
+						Get more Google reviews for your service business. Turn every happy customer into a 5-star review.
 					</p>
 				</div>
 
@@ -628,43 +614,6 @@
 			linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
 		background-size: 80px 80px;
 		mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
-	}
-
-	.hero-orb {
-		position: absolute;
-		border-radius: 50%;
-		filter: blur(80px);
-		opacity: 0.5;
-	}
-
-	.hero-orb--1 {
-		width: 500px;
-		height: 500px;
-		top: -100px;
-		left: -100px;
-		background: radial-gradient(circle, rgba(16, 185, 129, 0.12), transparent 70%);
-		animation: orb-drift-1 20s ease-in-out infinite;
-	}
-
-	.hero-orb--2 {
-		width: 400px;
-		height: 400px;
-		bottom: -50px;
-		right: -50px;
-		background: radial-gradient(circle, rgba(16, 185, 129, 0.08), transparent 70%);
-		animation: orb-drift-2 25s ease-in-out infinite;
-	}
-
-	@keyframes orb-drift-1 {
-		0%, 100% { transform: translate(0, 0); }
-		33% { transform: translate(30px, 20px); }
-		66% { transform: translate(-20px, 30px); }
-	}
-
-	@keyframes orb-drift-2 {
-		0%, 100% { transform: translate(0, 0); }
-		33% { transform: translate(-25px, -15px); }
-		66% { transform: translate(15px, -25px); }
 	}
 
 	/* Gradient text */

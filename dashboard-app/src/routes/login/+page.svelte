@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>Log in — Plumbly</title>
+	<title>Log in - Plumbly</title>
 </svelte:head>
 
 <script lang="ts">
@@ -17,7 +17,7 @@
 			</div>
 			<div>
 				<p class="text-sm font-semibold text-white">Plumbly</p>
-				<p class="text-xs text-slate-500">WorkOS protected dashboard</p>
+				<p class="text-xs text-slate-500">Secure login</p>
 			</div>
 		</a>
 
@@ -25,7 +25,7 @@
 			<p class="text-sm uppercase tracking-[0.3em] text-emerald-400/80">Dashboard Access</p>
 			<h1 class="mt-3 text-3xl font-bold tracking-tight text-white">Sign in to your workspace</h1>
 			<p class="mt-3 text-sm leading-6 text-slate-400">
-				Authentication is handled by WorkOS. Your browser session is stored in a secure HTTP-only cookie managed by the backend.
+				Your account is protected with enterprise-grade security. Just sign in and you're good to go.
 			</p>
 		</div>
 
@@ -34,7 +34,7 @@
 				class="flex w-full items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-400"
 				href={signInHref}
 			>
-				Continue with WorkOS
+				Sign in
 			</a>
 			<a
 				class="flex w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/[0.06]"
@@ -45,8 +45,8 @@
 		</div>
 
 		<div class="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-400">
-			<p class="font-medium text-slate-200">First release defaults</p>
-			<p class="mt-2">Users belong to a single organization. Internal staff can be promoted to the platform-level `superadmin` role through configuration.</p>
+			<p class="font-medium text-slate-200">Need help?</p>
+			<p class="mt-2">If you're having trouble signing in, contact your account owner or reach out to our support team.</p>
 		</div>
 	</div>
 </div>

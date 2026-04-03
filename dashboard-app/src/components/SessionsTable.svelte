@@ -114,13 +114,13 @@
 						class="border-t border-surface-700/50 hover:bg-surface-700/30 cursor-pointer transition-colors group"
 					>
 						<td class="px-5 py-3">
-							<span class="font-medium text-slate-200 group-hover:text-white transition-colors">{session.customer_name || '—'}</span>
+							<span class="font-medium text-slate-200 group-hover:text-white transition-colors">{session.customer_name || '-'}</span>
 							{#if session.is_repeat_customer}
 								<span class="ml-1.5 text-[10px] text-amber-400/80 bg-amber-500/10 px-1.5 py-0.5 rounded-full">repeat</span>
 							{/if}
 						</td>
-						<td class="px-3 py-3 text-slate-400 text-xs">{session.job_type || '—'}</td>
-						<td class="px-3 py-3 text-slate-400 text-xs">{session.plumber_name || '—'}</td>
+						<td class="px-3 py-3 text-slate-400 text-xs">{session.job_type || '-'}</td>
+						<td class="px-3 py-3 text-slate-400 text-xs">{session.plumber_name || '-'}</td>
 						<td class="px-3 py-3">
 							<span class="{status.bg} {status.text} text-xs font-medium px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
 								<span class="w-1.5 h-1.5 rounded-full {status.dot}"></span>
@@ -156,7 +156,7 @@
 			>
 				<div class="flex items-center justify-between mb-2">
 					<div class="flex items-center gap-2">
-						<span class="font-medium text-slate-200">{session.customer_name || '—'}</span>
+						<span class="font-medium text-slate-200">{session.customer_name || '-'}</span>
 						{#if session.is_repeat_customer}
 							<span class="text-[10px] text-amber-400/80 bg-amber-500/10 px-1.5 py-0.5 rounded-full">repeat</span>
 						{/if}
@@ -168,7 +168,7 @@
 				</div>
 				<div class="flex items-center gap-3 text-xs text-slate-500">
 					{#if session.job_type}<span>{session.job_type}</span><span>·</span>{/if}
-					<span>{session.plumber_name || '—'}</span>
+					<span>{session.plumber_name || '-'}</span>
 					<span>·</span>
 					<span>{session.message_count || 0} msgs</span>
 					<span>·</span>
