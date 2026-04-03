@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="brandStarTitle brandStarDesc">
   <title id="brandStarTitle">Plumbly gold star logo</title>
-  <desc id="brandStarDesc">A layered gold star emblem with a smaller star nested inside.</desc>
+  <desc id="brandStarDesc">A gold star emblem.</desc>
   <defs>
     <linearGradient id="goldFill" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#fff4bd"/>
@@ -19,16 +19,12 @@
       <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#f4c75b" flood-opacity="0.22"/>
     </filter>
   </defs>
-  <g filter="url(#softGlow)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+  <g filter="url(#softGlow)" stroke-linejoin="round" stroke-linecap="round">
     <path
       d="M256 36 316 159 452 179 352 273 376 412 256 349 136 412 160 273 60 179 196 159 256 36Z"
+      fill="none"
       stroke="url(#goldEdge)"
-      stroke-width="34"
-    />
-    <path
-      d="M256 132 297 216 390 228 321 292 337 386 256 344 175 386 191 292 122 228 215 216 256 132Z"
-      stroke="url(#goldFill)"
-      stroke-width="26"
+      stroke-width="30"
     />
   </g>
 </svg>

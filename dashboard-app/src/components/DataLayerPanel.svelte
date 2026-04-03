@@ -32,18 +32,17 @@
 	<!-- Header -->
 	<div class="flex items-center gap-4">
 		<div class="flex items-center gap-3">
-			<!-- Redis logo mark -->
 			<div class="relative">
-				<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-lg shadow-red-500/20">
-					<svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-						<path d="M10.5 2.661l.54.997-1.797.644 2.409.218.748 1.246.467-1.397 2.326-.252-1.864-.586.543-1.07L12.066 3.7l-1.566-1.04zm-3.88 4.278L2 9.721l7.932 3.283 8.564-3.127-4.597-2.782-7.28-.156zM2 14.809l7.932 3.283 8.564-3.127L12 12.036l-10 2.773z"/>
+				<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+					<svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
 					</svg>
 				</div>
 				<div class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-surface-900" style="animation: pulse-glow 2s infinite"></div>
 			</div>
 			<div>
-				<h2 class="text-lg font-bold tracking-tight text-white">Redis Infrastructure</h2>
-				<p class="text-xs text-slate-500 font-[family-name:var(--font-mono)]">7 data structures · live cluster view</p>
+				<h2 class="text-lg font-bold tracking-tight text-white">Plumbly data layer</h2>
+				<p class="text-xs text-slate-500 font-[family-name:var(--font-mono)]">Live storage metrics · operator view</p>
 			</div>
 		</div>
 		<div class="ml-auto flex items-center gap-2 bg-emerald-500/10 rounded-full px-3 py-1">
@@ -57,7 +56,7 @@
 		{#each store.redisStats as stat, i}
 			{@const colors = getColors(stat.type)}
 			<div
-				class="card-redis group {colors.border} hover:shadow-lg {colors.glow} transition-all duration-300"
+				class="card-infra group {colors.border} hover:shadow-lg {colors.glow} transition-all duration-300"
 				style="animation: count-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) {i * 0.06}s both"
 			>
 				<div class="p-4">
@@ -93,7 +92,7 @@
 
 		{#if store.redisStats.length === 0}
 			{#each Array(7) as _, i}
-				<div class="card-redis p-4 animate-pulse" style="animation-delay: {i * 0.1}s">
+				<div class="card-infra p-4 animate-pulse" style="animation-delay: {i * 0.1}s">
 					<div class="h-6 w-8 bg-surface-700 rounded mb-3"></div>
 					<div class="h-4 w-20 bg-surface-700 rounded mb-2"></div>
 					<div class="h-8 w-12 bg-surface-700 rounded mb-2"></div>

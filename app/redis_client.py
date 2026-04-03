@@ -1,5 +1,5 @@
 """
-Redis client — the centerpiece of Plumbly.
+Redis-backed persistence for Plumbly.
 
 Uses 7 distinct Redis data structures / features:
 1. JSON          — session state (Redis 8 built-in)
@@ -476,7 +476,7 @@ async def check_rate_limit(ip: str, endpoint: str) -> bool:
 
 
 async def get_redis_stats(organization_id: str | None = None) -> list[dict]:
-    """Return live stats for each Redis data structure used — interview showpiece."""
+    """Return live storage-pattern metrics for the operator dashboard."""
     r = await get_redis()
 
     # 1. JSON — Sessions

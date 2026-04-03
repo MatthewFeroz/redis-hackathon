@@ -28,7 +28,7 @@
 		</div>
 		<div>
 			<h2 class="text-lg font-semibold tracking-tight">Event Log</h2>
-			<p class="text-xs text-slate-500 font-[family-name:var(--font-mono)]">Redis Streams · XREVRANGE</p>
+			<p class="text-xs text-slate-500 font-[family-name:var(--font-mono)]">Activity log · newest first</p>
 		</div>
 		<span class="ml-auto text-[10px] text-slate-600 font-[family-name:var(--font-mono)]">{store.events.length} events</span>
 	</div>

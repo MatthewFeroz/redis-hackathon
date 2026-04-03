@@ -59,6 +59,14 @@ body::before {
 	z-index: 1;
 }
 
+/* Data layer stat cards (operator metrics grid) */
+.card-infra {
+	position: relative;
+	background: var(--color-surface-800);
+	border-radius: 0.75rem;
+	overflow: hidden;
+}
+
 /* Slide-in animation */
 @keyframes slide-in-right {
 	from { transform: translateX(100%); }

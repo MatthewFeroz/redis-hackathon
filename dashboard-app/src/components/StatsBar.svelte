@@ -41,7 +41,7 @@
 			</div>
 			<div>
 				<p class="text-2xl sm:text-3xl font-bold text-amber-400 tracking-tight leading-none">{store.analytics?.completion_rate ?? 0}%</p>
-				<p class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider mt-0.5">Completion Rate</p>
+				<p class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-wider mt-0.5">Review Rate</p>
 			</div>
 		</div>
 	</div>

@@ -29,7 +29,7 @@
 		</div>
 		<div>
 			<h2 class="text-lg font-semibold tracking-tight">Event Pipeline</h2>
-			<p class="text-xs text-slate-500 font-[family-name:var(--font-mono)]">Redis Streams · XADD/XRANGE</p>
+			<p class="text-xs text-slate-500 font-[family-name:var(--font-mono)]">Live pipeline · events as they land</p>
 		</div>
 	</div>
 

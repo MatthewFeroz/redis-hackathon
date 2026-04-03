@@ -2,6 +2,11 @@
 
 AI-powered review assistant that walks customers through leaving a Google review after a plumbing service call.
 
+## Quick orientation
+
+- **Architecture (components, data flow, file map):** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **AI / contributor onboarding:** follow the Cursor skill at [`.cursor/skills/project-orientation/SKILL.md`](.cursor/skills/project-orientation/SKILL.md) for a fixed read order and a short summary template before diving into the tree.
+
 ## Problem
 
 Small service businesses like plumbing companies rely on Google reviews for growth, but customers often don't leave reviews — not because they're unwilling, but because the process has too much friction. They forget, get confused by the steps, or give up halfway through.
@@ -25,7 +30,8 @@ Plumbly is an AI chat agent that guides customers step-by-step through leaving a
 | AI Agent | Google Gemini 2.0 Flash via GenAI SDK |
 | Backend | Python + FastAPI |
 | Session State | Redis |
-| Frontend | Web chat interface |
+| Customer UI | Static HTML/JS chat (`static/`) |
+| Business dashboard | SvelteKit static build (`dashboard-app/`), served by FastAPI |
 | Hosting | Railway |
 | Containerization | Docker |
 
@@ -51,8 +57,8 @@ Customer → Browser Chat UI → FastAPI Backend → Gemini GenAI SDK → Gemini
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/plumbreview.git
-cd plumbreview
+git clone https://github.com/YOUR_ORG/plumbly.git
+cd plumbly
 
 # Create virtual environment
 python -m venv venv
@@ -91,11 +97,6 @@ Recommended Railway service settings:
 - Root directory: `/`
 - Builder: `Dockerfile`
 - Auto-deploy: enabled for your main branch
-
-## Built For
-
-- **Gemini Live Agent Challenge Hackathon** — #GeminiLiveAgentChallenge
-- Demonstrates real-world application of Google Gemini multimodal AI with Railway deployment
 
 ## License
 

@@ -9,6 +9,7 @@
 	import SessionsTable from '../../components/SessionsTable.svelte';
 	import ConversationPanel from '../../components/ConversationPanel.svelte';
 	import AnalyticsCharts from '../../components/AnalyticsCharts.svelte';
+	import UserProfileMenu from '../../components/UserProfileMenu.svelte';
 
 	const store = getStore();
 
@@ -16,11 +17,6 @@
 	let authError = $state('');
 	let organizations = $state<OrganizationSummary[]>([]);
 	let switchingOrg = $state(false);
-
-	function fullName() {
-		if (!store.me) return '';
-		return [store.me.first_name, store.me.last_name].filter(Boolean).join(' ') || store.me.email;
-	}
 
 	async function bootstrap() {
 		try {
@@ -44,11 +40,10 @@
 		window.location.href = '/login';
 	}
 
-	async function handleOrgSwitch(event: Event) {
-		const target = (event.currentTarget as HTMLSelectElement).value;
+	async function handleOrgSwitch(organizationId: string) {
 		switchingOrg = true;
 		try {
-			store.me = await api.switchOrganization(target);
+			store.me = await api.switchOrganization(organizationId);
 			await store.refreshAll();
 		} finally {
 			switchingOrg = false;
@@ -115,42 +110,12 @@
 					</div>
 				</div>
 
-				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-					{#if store.me?.is_superadmin && organizations.length > 0}
-						<label class="flex flex-col gap-1 text-xs uppercase tracking-[0.24em] text-slate-500">
-							Scope
-							<select
-								class="min-w-52 rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm text-slate-200"
-								value={store.me?.organization?.id ?? 'all'}
-								onchange={handleOrgSwitch}
-								disabled={switchingOrg}
-							>
-								{#each organizations as organization}
-									<option value={organization.id}>{organization.name}</option>
-								{/each}
-							</select>
-						</label>
-					{:else if store.me?.organization}
-						<div class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-							<p class="text-[11px] uppercase tracking-[0.24em] text-slate-500">Organization</p>
-							<p class="mt-1 text-sm font-medium text-slate-200">{store.me.organization.name}</p>
-						</div>
-					{/if}
-
-					<div class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
-						<p class="text-[11px] uppercase tracking-[0.24em] text-slate-500">Signed in</p>
-						<p class="mt-1 text-sm font-medium text-slate-200">{fullName()}</p>
-						<p class="text-xs text-slate-500">{store.me?.platform_role ?? store.me?.role}</p>
-					</div>
-
-					<button
-						type="button"
-						class="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-slate-200 hover:bg-white/[0.06]"
-						onclick={handleLogout}
-					>
-						Log out
-					</button>
-				</div>
+				<UserProfileMenu
+					{organizations}
+					onOrgSwitch={handleOrgSwitch}
+					{switchingOrg}
+					onLogout={handleLogout}
+				/>
 			</header>
 
 			<JobForm />
